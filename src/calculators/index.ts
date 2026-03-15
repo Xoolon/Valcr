@@ -1,0 +1,591 @@
+export interface CalculatorField {
+  key: string
+  label: string
+  description?: string
+  type: 'currency' | 'percent' | 'number' | 'select'
+  default: number | string
+  min?: number
+  max?: number
+  step?: number
+  prefix?: string
+  suffix?: string
+  options?: { value: string; label: string }[]
+}
+
+export interface CalculatorOutput {
+  key: string
+  label: string
+  type: 'currency' | 'percent' | 'number' | 'multiplier'
+  highlight?: boolean
+  description?: string
+}
+
+export interface Calculator {
+  slug: string
+  name: string
+  shortName: string
+  tagline: string
+  description: string
+  category: 'ecommerce' | 'freelancer'
+  icon: string
+  color: string
+  seoTitle: string
+  seoDescription: string
+  seoKeywords: string[]
+  targetQuery: string
+  fields: CalculatorField[]
+  outputs: CalculatorOutput[]
+  faqs: { q: string; a: string }[]
+  relatedSlugs: string[]
+}
+
+export const CALCULATORS: Calculator[] = [
+  {
+    slug: 'true-landed-cost',
+    name: 'True Landed Cost Calculator',
+    shortName: 'Landed Cost',
+    tagline: 'Know exactly what your unit costs after every fee.',
+    description: 'Calculate the real cost of your products after shipping, customs duties, payment processing fees, and return rates. Stop guessing your margins.',
+    category: 'ecommerce',
+    icon: '📦',
+    color: '#C8FF57',
+    seoTitle: 'True Landed Cost Calculator for E-Commerce | Valcr',
+    seoDescription: 'Free landed cost calculator for e-commerce. Includes shipping, customs duties, payment fees, and return costs. Know your real unit cost before you price.',
+    seoKeywords: ['landed cost calculator ecommerce', 'landed cost calculator', 'true landed cost', 'import cost calculator', 'unit cost calculator'],
+    targetQuery: 'landed cost calculator ecommerce',
+    fields: [
+      { key: 'product_cost', label: 'Product Cost (per unit)', type: 'currency', default: 15.00, prefix: '$', min: 0 },
+      { key: 'shipping_cost', label: 'Shipping Cost (per unit)', type: 'currency', default: 3.50, prefix: '$', min: 0 },
+      { key: 'customs_duty_rate', label: 'Customs Duty Rate', type: 'percent', default: 5, suffix: '%', min: 0, max: 100 },
+      { key: 'payment_processing_rate', label: 'Payment Processing Rate', type: 'percent', default: 2.9, suffix: '%', min: 0, max: 10 },
+      { key: 'payment_processing_flat', label: 'Payment Processing Flat Fee', type: 'currency', default: 0.30, prefix: '$', min: 0 },
+      { key: 'return_rate', label: 'Return Rate', type: 'percent', default: 5, suffix: '%', min: 0, max: 100 },
+      { key: 'selling_price', label: 'Selling Price', type: 'currency', default: 49.99, prefix: '$', min: 0 },
+    ],
+    outputs: [
+      { key: 'landed_cost', label: 'True Landed Cost', type: 'currency', highlight: true, description: 'All costs to get one unit sold' },
+      { key: 'gross_profit', label: 'Gross Profit', type: 'currency', description: 'Revenue minus total landed cost' },
+      { key: 'gross_margin', label: 'Gross Margin', type: 'percent', highlight: false },
+      { key: 'cost_breakdown', label: 'Cost as % of Price', type: 'percent' },
+    ],
+    faqs: [
+      { q: 'What is landed cost in e-commerce?', a: 'Landed cost is the total cost of getting a product from your supplier to your customer\'s hands. It includes the product price, shipping, customs duties, insurance, packaging, and any fees incurred along the way. Many sellers only track product + shipping and are surprised by poor margins.' },
+      { q: 'How do I calculate customs duty?', a: 'Customs duty is typically a percentage of the declared value of your goods. Rates vary by product category (HS code) and country. For US imports, you can look up your rate at the USITC tariff schedule. Most consumer goods range from 0–20%.' },
+      { q: 'Should I include payment processing in landed cost?', a: 'Yes. Payment processing fees (typically 2.9% + $0.30 for Stripe/PayPal) directly reduce your net revenue on every sale. Ignoring them gives you an inflated margin picture.' },
+      { q: 'How does return rate affect landed cost?', a: 'When a customer returns a product, you lose the shipping cost and often the product value. A 5% return rate means for every 100 units you sell, 5 come back. That cost amortizes across all your sold units and increases your effective cost per sale.' },
+    ],
+    relatedSlugs: ['shopify-profit-margin', 'pricing-strategy', 'amazon-fba-calculator'],
+  },
+  {
+    slug: 'shopify-profit-margin',
+    name: 'Shopify Profit Margin Calculator',
+    shortName: 'Shopify Margin',
+    tagline: 'True profit after every Shopify fee.',
+    description: 'Calculate your real profit margin after Shopify subscription, transaction fees, payment processing, and app costs. Not just revenue minus COGS.',
+    category: 'ecommerce',
+    icon: '🛍️',
+    color: '#57C8FF',
+    seoTitle: 'Shopify Profit Margin Calculator 2024 | Valcr',
+    seoDescription: 'Calculate your true Shopify profit margin including subscription, transaction fees, payment processing, and app costs. Free and accurate.',
+    seoKeywords: ['shopify profit margin calculator', 'shopify fee calculator', 'shopify margin calculator', 'shopify net profit'],
+    targetQuery: 'shopify profit margin calculator',
+    fields: [
+      { key: 'revenue', label: 'Monthly Revenue', type: 'currency', default: 10000, prefix: '$', min: 0 },
+      { key: 'cogs', label: 'Cost of Goods Sold', type: 'currency', default: 4000, prefix: '$', min: 0 },
+      { key: 'shopify_plan', label: 'Shopify Plan', type: 'select', default: 'basic', options: [
+        { value: 'starter', label: 'Starter — $5/mo' },
+        { value: 'basic', label: 'Basic — $39/mo' },
+        { value: 'shopify', label: 'Shopify — $105/mo' },
+        { value: 'advanced', label: 'Advanced — $399/mo' },
+        { value: 'plus', label: 'Shopify Plus — $2,300/mo' },
+      ]},
+      { key: 'use_shopify_payments', label: 'Using Shopify Payments?', type: 'select', default: 'yes', options: [
+        { value: 'yes', label: 'Yes — Shopify Payments' },
+        { value: 'no', label: 'No — Third-party gateway' },
+      ]},
+      { key: 'app_costs', label: 'Monthly App Costs', type: 'currency', default: 150, prefix: '$', min: 0 },
+      { key: 'ad_spend', label: 'Monthly Ad Spend', type: 'currency', default: 1500, prefix: '$', min: 0 },
+    ],
+    outputs: [
+      { key: 'net_profit', label: 'Net Profit', type: 'currency', highlight: true },
+      { key: 'net_margin', label: 'Net Margin', type: 'percent', highlight: true },
+      { key: 'shopify_fees_total', label: 'Total Shopify Fees', type: 'currency' },
+      { key: 'effective_cogs_pct', label: 'Effective COGS %', type: 'percent' },
+    ],
+    faqs: [
+      { q: 'What fees does Shopify charge?', a: 'Shopify charges a monthly subscription fee ($39–$2,300/mo depending on plan), transaction fees if you don\'t use Shopify Payments (0.5–2%), and credit card processing rates (2.4–2.9% + $0.30 per transaction). Plus any third-party app fees.' },
+      { q: 'Is Shopify Payments worth it?', a: 'Usually yes. Using Shopify Payments eliminates the additional transaction fee (0.5–2% depending on plan). On Basic Shopify at $39/mo, that\'s 2% saved on every sale — significant at scale.' },
+      { q: 'How do I improve my Shopify profit margin?', a: 'Focus on three levers: reduce COGS through better supplier negotiation or volume, reduce customer acquisition cost through organic channels, and increase average order value through bundles or upsells.' },
+    ],
+    relatedSlugs: ['true-landed-cost', 'roas-calculator', 'break-even-units'],
+  },
+  {
+    slug: 'break-even-units',
+    name: 'E-Commerce Break-Even Calculator',
+    shortName: 'Break-Even',
+    tagline: 'How many units to turn on the lights?',
+    description: 'Calculate exactly how many units you need to sell to cover your fixed and variable costs at any price point. Essential for new product launches.',
+    category: 'ecommerce',
+    icon: '⚖️',
+    color: '#FF6B57',
+    seoTitle: 'E-Commerce Break-Even Calculator | Units & Revenue | Valcr',
+    seoDescription: 'Calculate your break-even point in units and revenue. Enter your fixed costs, variable costs, and selling price to see exactly when you become profitable.',
+    seoKeywords: ['ecommerce break even calculator', 'break even point calculator', 'break even units', 'break even analysis'],
+    targetQuery: 'ecommerce break even calculator',
+    fields: [
+      { key: 'fixed_costs', label: 'Monthly Fixed Costs', type: 'currency', default: 2000, prefix: '$', min: 0, description: 'Rent, salaries, software, subscriptions' },
+      { key: 'variable_cost_per_unit', label: 'Variable Cost per Unit', type: 'currency', default: 12, prefix: '$', min: 0, description: 'COGS, shipping, packaging' },
+      { key: 'selling_price', label: 'Selling Price per Unit', type: 'currency', default: 39, prefix: '$', min: 0.01 },
+    ],
+    outputs: [
+      { key: 'break_even_units', label: 'Break-Even Units / Month', type: 'number', highlight: true },
+      { key: 'break_even_revenue', label: 'Break-Even Revenue', type: 'currency', highlight: true },
+      { key: 'contribution_margin', label: 'Contribution Margin', type: 'currency' },
+      { key: 'contribution_margin_ratio', label: 'Contribution Margin %', type: 'percent' },
+    ],
+    faqs: [
+      { q: 'What is break-even analysis?', a: 'Break-even analysis tells you how many units you must sell (or how much revenue you must generate) before your total revenue equals your total costs. Below break-even you lose money; above it you profit.' },
+      { q: 'What are fixed vs variable costs in e-commerce?', a: 'Fixed costs stay the same regardless of sales volume: your Shopify plan, salaries, office rent, insurance. Variable costs scale with units: product cost, shipping per order, payment processing per transaction.' },
+      { q: 'How do I lower my break-even point?', a: 'Either raise your selling price, reduce variable costs per unit, or reduce fixed costs. Increasing price usually has the biggest impact on break-even since it directly widens the contribution margin.' },
+    ],
+    relatedSlugs: ['shopify-profit-margin', 'pricing-strategy', 'cash-flow-runway'],
+  },
+  {
+    slug: 'roas-calculator',
+    name: 'ROAS Calculator with Profit Context',
+    shortName: 'ROAS',
+    tagline: 'Is your ad spend actually profitable?',
+    description: 'Go beyond raw ROAS to see true profitability after COGS, fees, and overhead. Know the minimum ROAS needed to break even on your ads.',
+    category: 'ecommerce',
+    icon: '📈',
+    color: '#C8FF57',
+    seoTitle: 'ROAS Calculator with Profit Margin | True Profitability | Valcr',
+    seoDescription: 'Calculate ROAS with full profit context. Includes COGS, Shopify fees, and overhead. Find your break-even ROAS and true advertising profitability.',
+    seoKeywords: ['roas calculator with profit margin', 'roas calculator', 'return on ad spend calculator', 'break even roas', 'true roas'],
+    targetQuery: 'roas calculator with profit margin',
+    fields: [
+      { key: 'ad_spend', label: 'Monthly Ad Spend', type: 'currency', default: 5000, prefix: '$', min: 0 },
+      { key: 'revenue_from_ads', label: 'Revenue from Ads', type: 'currency', default: 20000, prefix: '$', min: 0 },
+      { key: 'cogs_percent', label: 'COGS as % of Revenue', type: 'percent', default: 35, suffix: '%', min: 0, max: 100 },
+      { key: 'platform_fees_percent', label: 'Platform Fees %', type: 'percent', default: 5, suffix: '%', min: 0, max: 20, description: 'Shopify, Amazon, etc.' },
+      { key: 'overhead_percent', label: 'Fixed Overhead % of Revenue', type: 'percent', default: 10, suffix: '%', min: 0, max: 100 },
+    ],
+    outputs: [
+      { key: 'roas', label: 'ROAS', type: 'multiplier', highlight: true },
+      { key: 'profit_from_ads', label: 'Profit from Ad Revenue', type: 'currency', highlight: true },
+      { key: 'break_even_roas', label: 'Break-Even ROAS', type: 'multiplier' },
+      { key: 'profit_margin_on_ad_revenue', label: 'Net Margin on Ad Revenue', type: 'percent' },
+    ],
+    faqs: [
+      { q: 'What is a good ROAS for e-commerce?', a: 'A "good" ROAS depends entirely on your margins. A product with 70% gross margin can be profitable at 2x ROAS. A product with 20% gross margin needs 8x+ ROAS to profit. Use this calculator to find your specific break-even ROAS.' },
+      { q: 'What\'s the difference between ROAS and MER?', a: 'ROAS measures return on a specific ad channel (e.g., Meta ads). MER (Marketing Efficiency Ratio) is total revenue divided by total ad spend across all channels. MER gives a more accurate picture of blended efficiency.' },
+      { q: 'Why might my ROAS look great but I\'m still losing money?', a: 'High ROAS doesn\'t guarantee profitability if your gross margins are thin. A 4x ROAS on a product with 25% gross margin means you\'re spending $1 on ads to make $4 revenue but only $1 gross profit — and that $1 doesn\'t cover overhead or fees.' },
+    ],
+    relatedSlugs: ['customer-acquisition-cost', 'shopify-profit-margin', 'influencer-roi-calculator'],
+  },
+  {
+    slug: 'customer-acquisition-cost',
+    name: 'Customer Acquisition Cost Calculator',
+    shortName: 'CAC',
+    tagline: 'Your true cost to acquire a customer.',
+    description: 'Calculate blended CAC across all paid and organic channels. See how it compares to your customer lifetime value.',
+    category: 'ecommerce',
+    icon: '🎯',
+    color: '#57C8FF',
+    seoTitle: 'Customer Acquisition Cost (CAC) Calculator | Valcr',
+    seoDescription: 'Calculate your true blended customer acquisition cost across all paid and organic channels. Free CAC calculator with LTV comparison.',
+    seoKeywords: ['customer acquisition cost calculator', 'CAC calculator', 'customer acquisition cost ecommerce', 'blended CAC'],
+    targetQuery: 'customer acquisition cost calculator',
+    fields: [
+      { key: 'total_marketing_spend', label: 'Total Monthly Marketing Spend', type: 'currency', default: 8000, prefix: '$', min: 0 },
+      { key: 'sales_salaries', label: 'Sales & Marketing Salaries', type: 'currency', default: 2000, prefix: '$', min: 0 },
+      { key: 'tools_software', label: 'Tools & Software (monthly)', type: 'currency', default: 300, prefix: '$', min: 0 },
+      { key: 'new_customers', label: 'New Customers This Month', type: 'number', default: 150, min: 1 },
+      { key: 'avg_order_value', label: 'Average Order Value', type: 'currency', default: 65, prefix: '$', min: 0 },
+      { key: 'repeat_purchase_rate', label: 'Repeat Purchase Rate (12mo)', type: 'percent', default: 30, suffix: '%', min: 0, max: 100 },
+    ],
+    outputs: [
+      { key: 'blended_cac', label: 'Blended CAC', type: 'currency', highlight: true },
+      { key: 'ltv_12mo', label: '12-Month LTV', type: 'currency', highlight: true },
+      { key: 'ltv_cac_ratio', label: 'LTV:CAC Ratio', type: 'multiplier' },
+      { key: 'payback_months', label: 'CAC Payback Period', type: 'number' },
+    ],
+    faqs: [
+      { q: 'What is a healthy LTV:CAC ratio?', a: 'For e-commerce, a 3:1 LTV:CAC ratio is considered healthy. Below 1:1 means you\'re losing money on each customer. Above 5:1 may indicate you\'re underinvesting in growth. SaaS benchmarks are similar but with much longer payback windows.' },
+      { q: 'What should I include in my CAC calculation?', a: 'Include all acquisition costs: paid ads, influencer fees, affiliate commissions, content creation, SEO tools, email platform costs, and a portion of any sales or marketing salaries. Many operators only count ad spend and underestimate true CAC.' },
+      { q: 'How do I reduce my CAC?', a: 'Focus on improving conversion rates (better landing pages, offers, trust signals), building organic channels (SEO, social, email), activating referral programs from existing customers, and improving attribution to cut underperforming channels.' },
+    ],
+    relatedSlugs: ['roas-calculator', 'subscription-ltv', 'influencer-roi-calculator'],
+  },
+  {
+    slug: 'inventory-reorder-point',
+    name: 'Inventory Reorder Point Calculator',
+    shortName: 'Reorder Point',
+    tagline: 'Never stock out. Never overstock.',
+    description: 'Calculate the exact inventory level that should trigger a reorder, accounting for supplier lead time, daily demand, and safety stock.',
+    category: 'ecommerce',
+    icon: '📊',
+    color: '#FF6B57',
+    seoTitle: 'Inventory Reorder Point Calculator | Safety Stock | Valcr',
+    seoDescription: 'Calculate your inventory reorder point based on lead time, demand, and safety stock. Never run out of stock or tie up capital in excess inventory.',
+    seoKeywords: ['inventory reorder point calculator', 'reorder point formula', 'safety stock calculator', 'inventory management calculator'],
+    targetQuery: 'inventory reorder point calculator',
+    fields: [
+      { key: 'daily_demand', label: 'Average Daily Unit Sales', type: 'number', default: 25, min: 1 },
+      { key: 'demand_variability', label: 'Demand Variability (std dev/day)', type: 'number', default: 5, min: 0 },
+      { key: 'lead_time_days', label: 'Supplier Lead Time (days)', type: 'number', default: 14, min: 1 },
+      { key: 'lead_time_variability', label: 'Lead Time Variability (days)', type: 'number', default: 3, min: 0 },
+      { key: 'service_level', label: 'Desired Service Level', type: 'select', default: '95', options: [
+        { value: '90', label: '90% — Lower safety stock' },
+        { value: '95', label: '95% — Standard' },
+        { value: '99', label: '99% — High availability' },
+      ]},
+    ],
+    outputs: [
+      { key: 'reorder_point', label: 'Reorder Point (units)', type: 'number', highlight: true },
+      { key: 'safety_stock', label: 'Safety Stock', type: 'number', highlight: true },
+      { key: 'avg_lead_time_demand', label: 'Avg Demand During Lead Time', type: 'number' },
+      { key: 'days_of_safety_stock', label: 'Days of Safety Stock', type: 'number' },
+    ],
+    faqs: [
+      { q: 'What is a reorder point?', a: 'A reorder point (ROP) is the inventory level that triggers placing a new purchase order. When your stock drops to this level, you order more so that replenishment arrives before you stock out. ROP = Average demand during lead time + Safety stock.' },
+      { q: 'What is safety stock and why do I need it?', a: 'Safety stock is extra inventory held as a buffer against demand spikes or supplier delays. Without it, any disruption causes a stockout. The right amount balances stockout risk against the capital cost of holding extra inventory.' },
+      { q: 'How do I handle seasonal demand in my reorder point?', a: 'Recalculate your reorder point monthly using your current rolling-30-day average daily demand, not your annual average. During peak seasons, your ROP should automatically rise because daily demand rises.' },
+    ],
+    relatedSlugs: ['cash-flow-runway', 'true-landed-cost', 'break-even-units'],
+  },
+  {
+    slug: 'cash-flow-runway',
+    name: 'E-Commerce Cash Flow Runway Calculator',
+    shortName: 'Cash Runway',
+    tagline: 'How many months until you run dry?',
+    description: 'Calculate how long your current cash balance will last at your current burn rate, with and without revenue growth.',
+    category: 'ecommerce',
+    icon: '💸',
+    color: '#C8FF57',
+    seoTitle: 'E-Commerce Cash Flow Runway Calculator | Valcr',
+    seoDescription: 'Calculate your cash flow runway in months. See how long your business can operate at current burn rates and what growth you need to reach profitability.',
+    seoKeywords: ['ecommerce cash flow runway calculator', 'cash runway calculator', 'burn rate calculator', 'cash flow calculator ecommerce'],
+    targetQuery: 'ecommerce cash flow runway calculator',
+    fields: [
+      { key: 'cash_balance', label: 'Current Cash Balance', type: 'currency', default: 50000, prefix: '$', min: 0 },
+      { key: 'monthly_revenue', label: 'Monthly Revenue', type: 'currency', default: 15000, prefix: '$', min: 0 },
+      { key: 'monthly_expenses', label: 'Total Monthly Expenses', type: 'currency', default: 22000, prefix: '$', min: 0 },
+      { key: 'monthly_cogs', label: 'Monthly COGS', type: 'currency', default: 6000, prefix: '$', min: 0 },
+      { key: 'revenue_growth_rate', label: 'Monthly Revenue Growth Rate', type: 'percent', default: 10, suffix: '%', min: -50, max: 200 },
+    ],
+    outputs: [
+      { key: 'current_burn', label: 'Current Monthly Burn', type: 'currency', highlight: true },
+      { key: 'runway_months', label: 'Runway (months)', type: 'number', highlight: true },
+      { key: 'breakeven_month', label: 'Months to Break-Even', type: 'number' },
+      { key: 'zero_date_revenue', label: 'Revenue at Zero Cash', type: 'currency' },
+    ],
+    faqs: [
+      { q: 'What is burn rate?', a: 'Burn rate is the net amount of cash your business spends per month (expenses minus revenue). If you spend $20,000/mo and earn $15,000/mo, your burn rate is $5,000/mo. With $50,000 in the bank, your runway is 10 months.' },
+      { q: 'How much runway should I maintain?', a: 'Most advisors recommend 6–12 months of runway at all times. Below 3 months, you\'re in crisis territory with limited options. The right number depends on how predictable your revenue is and how quickly you can cut costs.' },
+      { q: 'What\'s the fastest way to extend my runway?', a: 'Three levers: reduce fixed costs (cut subscriptions, renegotiate rent), reduce COGS (better suppliers, smaller initial orders), and increase revenue velocity (focus on converting existing traffic before spending more on acquisition).' },
+    ],
+    relatedSlugs: ['break-even-units', 'shopify-profit-margin', 'inventory-reorder-point'],
+  },
+  {
+    slug: 'subscription-ltv',
+    name: 'Subscription LTV Calculator',
+    shortName: 'Subscription LTV',
+    tagline: 'True lifetime value with churn and COGS.',
+    description: 'Calculate the real lifetime value of a subscription customer after churn, refunds, COGS, and acquisition cost.',
+    category: 'ecommerce',
+    icon: '🔄',
+    color: '#57C8FF',
+    seoTitle: 'Subscription LTV Calculator for E-Commerce | Valcr',
+    seoDescription: 'Calculate subscription customer lifetime value including churn rate, refunds, COGS, and CAC. See your true LTV:CAC ratio.',
+    seoKeywords: ['subscription ltv calculator ecommerce', 'customer lifetime value calculator', 'LTV calculator subscription', 'churn rate LTV'],
+    targetQuery: 'subscription ltv calculator ecommerce',
+    fields: [
+      { key: 'monthly_price', label: 'Monthly Subscription Price', type: 'currency', default: 29, prefix: '$', min: 0 },
+      { key: 'monthly_churn_rate', label: 'Monthly Churn Rate', type: 'percent', default: 5, suffix: '%', min: 0, max: 100 },
+      { key: 'cogs_percent', label: 'COGS as % of Revenue', type: 'percent', default: 30, suffix: '%', min: 0, max: 100 },
+      { key: 'refund_rate', label: 'Monthly Refund Rate', type: 'percent', default: 2, suffix: '%', min: 0, max: 100 },
+      { key: 'cac', label: 'Customer Acquisition Cost', type: 'currency', default: 45, prefix: '$', min: 0 },
+    ],
+    outputs: [
+      { key: 'avg_customer_lifespan', label: 'Avg Customer Lifespan', type: 'number', highlight: true },
+      { key: 'gross_ltv', label: 'Gross LTV', type: 'currency', highlight: true },
+      { key: 'net_ltv', label: 'Net LTV (after CAC)', type: 'currency', highlight: true },
+      { key: 'ltv_cac_ratio', label: 'LTV:CAC Ratio', type: 'multiplier' },
+    ],
+    faqs: [
+      { q: 'How do I calculate LTV for a subscription business?', a: 'LTV = (Monthly Revenue per Customer × Gross Margin %) / Monthly Churn Rate. For example: ($30 × 70%) / 5% = $420 gross LTV. Subtract your CAC to get net LTV.' },
+      { q: 'What is an acceptable churn rate for e-commerce subscriptions?', a: 'Under 5% monthly churn (under 46% annual) is typical for e-commerce subscriptions. Best-in-class is under 2% monthly. High churn above 8–10% monthly usually signals a product-market fit problem, not a marketing problem.' },
+      { q: 'Does LTV change with pricing?', a: 'Yes — increasing price by 10% increases LTV by 10%, assuming churn doesn\'t increase proportionally. Improving churn by 20% has an outsized effect because it extends customer lifespan multiplicatively.' },
+    ],
+    relatedSlugs: ['customer-acquisition-cost', 'roas-calculator', 'shopify-profit-margin'],
+  },
+  {
+    slug: 'amazon-fba-calculator',
+    name: 'Amazon FBA Profit Calculator',
+    shortName: 'Amazon FBA',
+    tagline: 'Net profit after every Amazon fee.',
+    description: 'Calculate your true net profit on any Amazon FBA product after referral fees, fulfillment fees, storage, and prep costs.',
+    category: 'ecommerce',
+    icon: '📦',
+    color: '#FF6B57',
+    seoTitle: 'Amazon FBA Profit Calculator 2024 | All Fees | Valcr',
+    seoDescription: 'Free Amazon FBA profit calculator. Includes referral fees, fulfillment fees, monthly storage, inbound shipping, and prep costs for accurate 2024 numbers.',
+    seoKeywords: ['amazon fba profit calculator 2024', 'amazon fba calculator', 'fba fee calculator', 'amazon seller profit calculator'],
+    targetQuery: 'amazon fba profit calculator 2024',
+    fields: [
+      { key: 'selling_price', label: 'Selling Price', type: 'currency', default: 29.99, prefix: '$', min: 0.01 },
+      { key: 'product_cost', label: 'Product Cost', type: 'currency', default: 6.00, prefix: '$', min: 0 },
+      { key: 'inbound_shipping', label: 'Inbound Shipping (per unit)', type: 'currency', default: 1.20, prefix: '$', min: 0 },
+      { key: 'referral_fee_percent', label: 'Amazon Referral Fee %', type: 'percent', default: 15, suffix: '%', min: 0, max: 45, description: 'Typically 8–15% depending on category' },
+      { key: 'fulfillment_fee', label: 'FBA Fulfillment Fee', type: 'currency', default: 4.75, prefix: '$', min: 0, description: 'Based on product size/weight' },
+      { key: 'monthly_storage', label: 'Monthly Storage (per unit)', type: 'currency', default: 0.15, prefix: '$', min: 0 },
+      { key: 'prep_cost', label: 'Prep / Labeling Cost', type: 'currency', default: 0.50, prefix: '$', min: 0 },
+      { key: 'ppc_spend_per_unit', label: 'PPC Cost per Unit Sold', type: 'currency', default: 1.50, prefix: '$', min: 0 },
+    ],
+    outputs: [
+      { key: 'net_profit', label: 'Net Profit per Unit', type: 'currency', highlight: true },
+      { key: 'net_margin', label: 'Net Margin', type: 'percent', highlight: true },
+      { key: 'total_amazon_fees', label: 'Total Amazon Fees', type: 'currency' },
+      { key: 'roi', label: 'ROI on Product Cost', type: 'percent' },
+    ],
+    faqs: [
+      { q: 'How are Amazon FBA fees calculated?', a: 'Amazon charges two types of fees: a referral fee (percentage of sale price, typically 8–15%) and a fulfillment fee (flat rate based on product dimensions and weight, ranging from ~$3.22 to $150+ for oversized). Storage fees add $0.56–$2.40/cubic foot/month.' },
+      { q: 'What is a good profit margin for Amazon FBA?', a: 'Experienced FBA sellers target 25–35%+ net margins. Below 15% is generally too thin once you account for PPC spend, returns, and any price wars. Products with gross margins below 50% are hard to make work profitably on Amazon.' },
+      { q: 'How can I reduce my Amazon FBA fees?', a: 'Key levers: choose smaller/lighter packaging to reduce fulfillment fees, avoid long-term storage fees by managing inventory turns, optimize PPC bidding to reduce cost per sale, and source products at lower COGS to maintain margin despite fees.' },
+    ],
+    relatedSlugs: ['true-landed-cost', 'roas-calculator', 'inventory-reorder-point'],
+  },
+  {
+    slug: 'pricing-strategy',
+    name: 'Product Pricing Strategy Calculator',
+    shortName: 'Pricing',
+    tagline: 'Find the price that maximizes margin.',
+    description: 'Calculate the optimal selling price to hit your target gross margin. Factor in all costs and see how pricing changes affect profitability.',
+    category: 'ecommerce',
+    icon: '💰',
+    color: '#C8FF57',
+    seoTitle: 'Product Pricing Calculator — Target Margin | Valcr',
+    seoDescription: 'Calculate the right product price to hit your target gross margin. Enter your costs and desired margin to find your optimal pricing strategy.',
+    seoKeywords: ['product pricing calculator margin', 'pricing strategy calculator', 'how to price a product calculator', 'margin calculator ecommerce'],
+    targetQuery: 'product pricing calculator margin',
+    fields: [
+      { key: 'cogs', label: 'Cost of Goods (per unit)', type: 'currency', default: 12, prefix: '$', min: 0 },
+      { key: 'shipping_cost', label: 'Shipping Cost (per unit)', type: 'currency', default: 2.50, prefix: '$', min: 0 },
+      { key: 'platform_fee_percent', label: 'Platform Fee %', type: 'percent', default: 5, suffix: '%', min: 0, max: 30 },
+      { key: 'payment_processing_percent', label: 'Payment Processing %', type: 'percent', default: 2.9, suffix: '%', min: 0, max: 10 },
+      { key: 'target_gross_margin', label: 'Target Gross Margin', type: 'percent', default: 60, suffix: '%', min: 1, max: 99 },
+      { key: 'overhead_per_unit', label: 'Overhead Allocation per Unit', type: 'currency', default: 2, prefix: '$', min: 0 },
+    ],
+    outputs: [
+      { key: 'minimum_price', label: 'Minimum Viable Price', type: 'currency', highlight: true },
+      { key: 'target_price', label: 'Price for Target Margin', type: 'currency', highlight: true },
+      { key: 'total_cost_per_unit', label: 'Total Cost per Unit', type: 'currency' },
+      { key: 'markup_multiplier', label: 'Markup Multiplier', type: 'multiplier' },
+    ],
+    faqs: [
+      { q: 'What\'s the difference between margin and markup?', a: 'Margin is profit as a percentage of selling price. Markup is profit as a percentage of cost. A 50% margin = a 100% markup. Use margin when talking to investors and buyers; use markup when calculating from costs.' },
+      { q: 'How do I price against competitors?', a: 'Start with a cost-plus price for your target margin, then compare to competitors. If your price is higher, identify a meaningful differentiation. If it\'s lower, check whether your margins are sustainable. Never price below cost for the long term.' },
+      { q: 'Should I test different price points?', a: 'Yes. Price elasticity varies dramatically by product and audience. A 20% price increase might reduce conversion by only 5%, dramatically improving profitability. A/B testing price points (with a 30-day minimum per variant) is standard practice.' },
+    ],
+    relatedSlugs: ['true-landed-cost', 'shopify-profit-margin', 'break-even-units'],
+  },
+  {
+    slug: 'refund-rate-impact',
+    name: 'Refund Rate Impact Calculator',
+    shortName: 'Refund Impact',
+    tagline: 'See the real cost of your return rate.',
+    description: 'Calculate the full financial impact of your refund rate on net revenue, gross profit, and customer LTV.',
+    category: 'ecommerce',
+    icon: '↩️',
+    color: '#57C8FF',
+    seoTitle: 'E-Commerce Refund Rate Impact Calculator | Valcr',
+    seoDescription: 'Calculate the true cost of your refund rate on net revenue and profit. See what reducing returns by 1% is worth to your bottom line.',
+    seoKeywords: ['ecommerce refund rate impact calculator', 'return rate calculator', 'refund cost calculator', 'ecommerce returns impact'],
+    targetQuery: 'ecommerce refund rate impact calculator',
+    fields: [
+      { key: 'monthly_revenue', label: 'Monthly Gross Revenue', type: 'currency', default: 50000, prefix: '$', min: 0 },
+      { key: 'refund_rate', label: 'Current Refund Rate', type: 'percent', default: 8, suffix: '%', min: 0, max: 100 },
+      { key: 'cogs_percent', label: 'COGS as % of Revenue', type: 'percent', default: 35, suffix: '%', min: 0, max: 100 },
+      { key: 'return_shipping_cost', label: 'Return Shipping Cost per Order', type: 'currency', default: 6.50, prefix: '$', min: 0 },
+      { key: 'restocking_rate', label: '% of Returns Resellable', type: 'percent', default: 60, suffix: '%', min: 0, max: 100 },
+      { key: 'avg_order_value', label: 'Average Order Value', type: 'currency', default: 75, prefix: '$', min: 0.01 },
+    ],
+    outputs: [
+      { key: 'net_revenue', label: 'Net Revenue After Refunds', type: 'currency', highlight: true },
+      { key: 'total_refund_cost', label: 'Total Monthly Refund Cost', type: 'currency', highlight: true },
+      { key: 'refunds_as_pct_revenue', label: 'Refunds as % of Revenue', type: 'percent' },
+      { key: 'value_of_1pct_reduction', label: 'Value of 1% Less Returns', type: 'currency' },
+    ],
+    faqs: [
+      { q: 'What is a normal e-commerce return rate?', a: 'Average e-commerce return rates are 20–30% for apparel, 8–12% for electronics, and 5–10% for home goods and accessories. Online returns are typically 3–4x higher than in-store returns due to sizing uncertainty and buyer expectations.' },
+      { q: 'How do I reduce my refund rate?', a: 'Most returns are preventable with better product descriptions, accurate sizing guides, more product photos (especially worn/in-use shots), video demonstrations, and managing customer expectations. Post-purchase follow-up emails can also reduce buyer\'s remorse returns.' },
+      { q: 'Should I offer free returns?', a: 'Free returns increase conversion rates but also increase return rates. The net effect depends on your product category and margins. High-margin products with high cart abandonment often benefit. Low-margin, high-return categories may not.' },
+    ],
+    relatedSlugs: ['shopify-profit-margin', 'true-landed-cost', 'chargeback-impact'],
+  },
+  {
+    slug: 'bundle-pricing-optimizer',
+    name: 'Bundle Pricing Optimizer',
+    shortName: 'Bundle Pricing',
+    tagline: 'Bundle prices that maximize margin.',
+    description: 'Find the optimal bundle price to maximize profit margin without sacrificing conversion. Compare bundle vs individual product economics.',
+    category: 'ecommerce',
+    icon: '🎁',
+    color: '#FF6B57',
+    seoTitle: 'Product Bundle Pricing Calculator | Optimize Margins | Valcr',
+    seoDescription: 'Calculate the optimal bundle price for maximum profit. Compare bundle economics to individual sales and find the right discount to boost AOV without hurting margins.',
+    seoKeywords: ['product bundle pricing calculator', 'bundle pricing optimizer', 'bundle pricing strategy', 'how to price product bundles'],
+    targetQuery: 'product bundle pricing calculator',
+    fields: [
+      { key: 'product1_price', label: 'Product 1 Individual Price', type: 'currency', default: 29.99, prefix: '$', min: 0 },
+      { key: 'product1_cogs', label: 'Product 1 COGS', type: 'currency', default: 8, prefix: '$', min: 0 },
+      { key: 'product2_price', label: 'Product 2 Individual Price', type: 'currency', default: 19.99, prefix: '$', min: 0 },
+      { key: 'product2_cogs', label: 'Product 2 COGS', type: 'currency', default: 5, prefix: '$', min: 0 },
+      { key: 'bundle_discount_percent', label: 'Bundle Discount %', type: 'percent', default: 15, suffix: '%', min: 0, max: 80 },
+      { key: 'platform_fees', label: 'Platform Fees %', type: 'percent', default: 5, suffix: '%', min: 0, max: 30 },
+    ],
+    outputs: [
+      { key: 'bundle_price', label: 'Bundle Price', type: 'currency', highlight: true },
+      { key: 'bundle_margin', label: 'Bundle Gross Margin', type: 'percent', highlight: true },
+      { key: 'individual_margin', label: 'Individual Sales Margin', type: 'percent' },
+      { key: 'margin_delta', label: 'Margin Difference', type: 'percent' },
+    ],
+    faqs: [
+      { q: 'How much should I discount a bundle?', a: 'Effective bundle discounts are typically 10–20%. Anything above 25% starts to cannibalize individual sales. The goal is to increase average order value and move more inventory, not to offer charity. Frame it as value, not discount.' },
+      { q: 'What products make good bundles?', a: 'Bundles work best with complementary products customers would buy together anyway (e.g., skincare routine, coffee + grinder, camera + case). Avoid bundling unrelated items — customers perceive no value in the pairing.' },
+      { q: 'Should I always offer a discount on bundles?', a: 'No. Premium bundles can be priced at or above the sum of components if they add convenience or exclusive items. Limited-edition bundles, gift sets, and curated collections often command a premium rather than a discount.' },
+    ],
+    relatedSlugs: ['pricing-strategy', 'shopify-profit-margin', 'refund-rate-impact'],
+  },
+  {
+    slug: 'influencer-roi-calculator',
+    name: 'Influencer Marketing ROI Calculator',
+    shortName: 'Influencer ROI',
+    tagline: 'What will that influencer deal actually return?',
+    description: 'Calculate expected ROI from an influencer campaign using realistic assumptions about reach, conversion, and average order value.',
+    category: 'ecommerce',
+    icon: '🌟',
+    color: '#C8FF57',
+    seoTitle: 'Influencer Marketing ROI Calculator | E-Commerce | Valcr',
+    seoDescription: 'Calculate influencer marketing ROI before you sign the deal. Enter follower count, engagement rate, and conversion assumptions to see expected return.',
+    seoKeywords: ['influencer marketing roi calculator', 'influencer roi calculator', 'influencer campaign calculator', 'influencer marketing ecommerce'],
+    targetQuery: 'influencer marketing roi calculator',
+    fields: [
+      { key: 'influencer_fee', label: 'Influencer Fee', type: 'currency', default: 2500, prefix: '$', min: 0 },
+      { key: 'followers', label: 'Follower Count', type: 'number', default: 100000, min: 100 },
+      { key: 'engagement_rate', label: 'Engagement Rate', type: 'percent', default: 3, suffix: '%', min: 0.1, max: 30 },
+      { key: 'story_reach_percent', label: 'Story / Reach Rate %', type: 'percent', default: 15, suffix: '%', min: 0, max: 100 },
+      { key: 'conversion_rate', label: 'Link Conversion Rate', type: 'percent', default: 1.5, suffix: '%', min: 0, max: 100 },
+      { key: 'avg_order_value', label: 'Average Order Value', type: 'currency', default: 65, prefix: '$', min: 0.01 },
+      { key: 'gross_margin_percent', label: 'Gross Margin %', type: 'percent', default: 60, suffix: '%', min: 0, max: 100 },
+      { key: 'product_cost', label: 'Product/Gifting Cost', type: 'currency', default: 100, prefix: '$', min: 0 },
+    ],
+    outputs: [
+      { key: 'estimated_orders', label: 'Estimated Orders', type: 'number', highlight: true },
+      { key: 'estimated_revenue', label: 'Estimated Revenue', type: 'currency', highlight: true },
+      { key: 'net_profit', label: 'Net Profit from Campaign', type: 'currency', highlight: true },
+      { key: 'campaign_roas', label: 'Campaign ROAS', type: 'multiplier' },
+    ],
+    faqs: [
+      { q: 'What is a realistic conversion rate for influencer marketing?', a: 'Swipe-up or link-in-bio conversion rates typically range from 0.5–3% for story placements and 0.3–2% for feed posts. Micro-influencers (10–50K followers) often convert better than mega-influencers due to trust. Test before committing to large campaigns.' },
+      { q: 'How do I negotiate influencer fees?', a: 'Standard benchmarks are $100 per 10,000 followers for Instagram feed posts, less for stories. Engagement rate matters more than follower count — an influencer with 30K engaged followers is worth more than 200K ghost followers. Always ask for audience demographics.' },
+      { q: 'What makes an influencer campaign profitable?', a: 'High-converting product-audience alignment is the primary driver. A fitness influencer selling protein powder converts far better than a lifestyle influencer promoting B2B software. Secondary drivers are strong creative, clear CTA, and an exclusive offer or promo code for tracking.' },
+    ],
+    relatedSlugs: ['roas-calculator', 'customer-acquisition-cost', 'shopify-profit-margin'],
+  },
+  {
+    slug: 'chargeback-impact',
+    name: 'Chargeback Cost Calculator',
+    shortName: 'Chargeback',
+    tagline: 'The real cost of your chargeback rate.',
+    description: 'Calculate the full financial impact of chargebacks including fines, lost product, processing fees, and operational overhead.',
+    category: 'ecommerce',
+    icon: '🚫',
+    color: '#FF6B57',
+    seoTitle: 'Chargeback Cost Calculator for E-Commerce | Valcr',
+    seoDescription: 'Calculate the true cost of chargebacks including lost product, dispute fees, processing costs, and threshold fines. Understand your real chargeback exposure.',
+    seoKeywords: ['chargeback cost calculator', 'chargeback impact calculator', 'ecommerce chargeback calculator', 'chargeback rate calculator'],
+    targetQuery: 'chargeback cost calculator',
+    fields: [
+      { key: 'monthly_transactions', label: 'Monthly Transactions', type: 'number', default: 500, min: 1 },
+      { key: 'avg_order_value', label: 'Average Order Value', type: 'currency', default: 75, prefix: '$', min: 0.01 },
+      { key: 'chargeback_rate', label: 'Chargeback Rate', type: 'percent', default: 0.8, suffix: '%', min: 0, max: 5, step: 0.1 },
+      { key: 'dispute_fee', label: 'Dispute Fee per Chargeback', type: 'currency', default: 25, prefix: '$', min: 0 },
+      { key: 'cogs_percent', label: 'COGS as % of Revenue', type: 'percent', default: 35, suffix: '%', min: 0, max: 100 },
+      { key: 'win_rate', label: 'Dispute Win Rate', type: 'percent', default: 30, suffix: '%', min: 0, max: 100 },
+    ],
+    outputs: [
+      { key: 'monthly_chargebacks', label: 'Monthly Chargebacks', type: 'number', highlight: true },
+      { key: 'total_monthly_loss', label: 'Total Monthly Loss', type: 'currency', highlight: true },
+      { key: 'cost_per_chargeback', label: 'Cost per Chargeback', type: 'currency' },
+      { key: 'annual_impact', label: 'Annual Impact', type: 'currency' },
+    ],
+    faqs: [
+      { q: 'What chargeback rate triggers penalties?', a: 'Visa and Mastercard both flag merchants at 0.9% chargeback rate. Above 1%, you\'re in the dispute monitoring program with extra fees and risk of account termination. Most payment processors flag at 0.5%. Target under 0.3% for comfort.' },
+      { q: 'What are the real costs of a chargeback?', a: 'Direct costs: the lost transaction revenue, the product you shipped, return shipping if applicable, and the dispute fee ($15–$50). Indirect costs: time to respond to disputes (20–60 min each), potential processor rate increases, and monitoring program fines.' },
+      { q: 'How do I reduce chargebacks?', a: 'Best practices: use clear billing descriptors customers recognize, send order confirmation and tracking emails, have easy-to-find customer service, and respond to dispute requests within 24 hours. Use 3D Secure (Verified by Visa/Mastercard) for high-risk transactions.' },
+    ],
+    relatedSlugs: ['refund-rate-impact', 'shopify-profit-margin', 'true-landed-cost'],
+  },
+  {
+    slug: 'shipping-cost-optimizer',
+    name: 'Shipping Cost Optimizer',
+    shortName: 'Shipping',
+    tagline: 'Compare carriers by true per-unit cost.',
+    description: 'Compare shipping carriers and methods side by side to find the lowest true cost per unit after all fees and surcharges.',
+    category: 'ecommerce',
+    icon: '🚚',
+    color: '#57C8FF',
+    seoTitle: 'E-Commerce Shipping Cost Comparison Calculator | Valcr',
+    seoDescription: 'Compare shipping carriers and methods by true per-unit cost including dimensional weight, fuel surcharges, and residential fees.',
+    seoKeywords: ['ecommerce shipping cost comparison', 'shipping cost calculator ecommerce', 'compare shipping carriers', 'shipping cost optimizer'],
+    targetQuery: 'ecommerce shipping cost comparison',
+    fields: [
+      { key: 'package_weight_oz', label: 'Package Weight (oz)', type: 'number', default: 12, min: 0.1 },
+      { key: 'length_in', label: 'Length (inches)', type: 'number', default: 10, min: 1 },
+      { key: 'width_in', label: 'Width (inches)', type: 'number', default: 8, min: 1 },
+      { key: 'height_in', label: 'Height (inches)', type: 'number', default: 4, min: 1 },
+      { key: 'destination_type', label: 'Destination Type', type: 'select', default: 'residential', options: [
+        { value: 'residential', label: 'Residential' },
+        { value: 'commercial', label: 'Commercial' },
+      ]},
+      { key: 'monthly_volume', label: 'Monthly Shipments', type: 'number', default: 200, min: 1 },
+      { key: 'avg_order_value', label: 'Average Order Value', type: 'currency', default: 65, prefix: '$', min: 0.01 },
+    ],
+    outputs: [
+      { key: 'dim_weight_lb', label: 'Dimensional Weight (lb)', type: 'number', highlight: false },
+      { key: 'billable_weight_lb', label: 'Billable Weight (lb)', type: 'number' },
+      { key: 'estimated_cost_usps', label: 'Est. USPS Ground Advantage', type: 'currency', highlight: true },
+      { key: 'shipping_as_pct_aov', label: 'Shipping as % of AOV', type: 'percent' },
+    ],
+    faqs: [
+      { q: 'What is dimensional weight pricing?', a: 'Dimensional (DIM) weight pricing charges you based on the size of your package, not just its physical weight. If the calculated DIM weight (L×W×H ÷ 139 for UPS/FedEx) is greater than actual weight, you pay DIM weight. Compact packaging directly reduces shipping costs.' },
+      { q: 'How much do residential delivery surcharges add?', a: 'UPS and FedEx add $4.95–$6.90 per residential package on top of base rates. USPS doesn\'t charge residential surcharges, which is why USPS Priority Mail is often cheapest for small, light residential shipments.' },
+      { q: 'At what volume do shipping discounts kick in?', a: 'Most carriers offer negotiated rates above 100–200 shipments per month. Above 500/mo, rates can drop 20–40% below retail. Services like EasyPost, ShipStation, and Pirateship offer pre-negotiated rates even at low volumes.' },
+    ],
+    relatedSlugs: ['true-landed-cost', 'amazon-fba-calculator', 'break-even-units'],
+  },
+]
+
+export const getCalculator = (slug: string): Calculator | undefined =>
+  CALCULATORS.find((c) => c.slug === slug)
+
+export const getRelatedCalculators = (slug: string): Calculator[] => {
+  const calc = getCalculator(slug)
+  if (!calc) return []
+  return calc.relatedSlugs.map(getCalculator).filter(Boolean) as Calculator[]
+}
+
+export const CATEGORIES = {
+  ecommerce: {
+    label: 'E-Commerce',
+    description: 'Calculators for online store operators',
+    color: '#C8FF57',
+  },
+  freelancer: {
+    label: 'Freelancer',
+    description: 'Calculators for freelancers and agencies',
+    color: '#57C8FF',
+  },
+}
