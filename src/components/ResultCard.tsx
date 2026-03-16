@@ -1,4 +1,4 @@
-import { ExoClickAd } from './ExoClickAd'
+import { AdBanner } from './AdBanner'
 import { Calculator } from '@/calculators'
 import { CalcResult } from '@/calculators/engine'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
@@ -78,7 +78,7 @@ export function ResultCard({ calculator, results, explanation }: ResultCardProps
       )}
 
       {/* Ad — below results, non-intrusive */}
-      <ExoClickAd className="py-2" />
+      <AdBanner className="mt-2" />
     </div>
   )
 }

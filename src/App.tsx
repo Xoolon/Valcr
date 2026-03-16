@@ -19,6 +19,7 @@ import { BlogPage } from '@/pages/legal/Blog'
 import { AdminPage } from '@/pages/admin/Admin'
 import { PaymentVerifyPage } from '@/pages/PaymentVerify'
 import { NotFoundPage } from '@/pages/NotFound'
+import { BlogPostPage } from '@/pages/blog/BlogPost'
 
 const NO_FOOTER = ['/login', '/signup', '/forgot-password', '/reset-password', '/payments/verify']
 
@@ -53,6 +54,7 @@ export default function App() {
           {/* Legal */}
           <Route path="/about" element={<AboutPage />} />
           <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           {/* Admin */}

@@ -129,6 +129,34 @@
   .stagger-child:nth-child(6) { animation-delay: 0.30s; }
 }
 
+.prose-valcr {
+    @apply text-ink-200 leading-relaxed;
+  }
+  .prose-valcr h2 {
+    @apply font-display font-800 text-2xl text-ink-50 mt-10 mb-4 leading-tight;
+  }
+  .prose-valcr h3 {
+    @apply font-display font-700 text-lg text-ink-100 mt-7 mb-3;
+  }
+  .prose-valcr p {
+    @apply text-ink-300 text-base leading-relaxed mb-5;
+  }
+  .prose-valcr ul {
+    @apply space-y-2 mb-5 ml-4;
+  }
+  .prose-valcr ol {
+    @apply space-y-2 mb-5 ml-4 list-decimal;
+  }
+  .prose-valcr li {
+    @apply text-ink-300 text-base leading-relaxed;
+  }
+  .prose-valcr strong {
+    @apply font-700 text-ink-100;
+  }
+  .prose-valcr em {
+    @apply italic text-ink-200;
+  }
+
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }

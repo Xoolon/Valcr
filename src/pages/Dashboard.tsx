@@ -4,7 +4,7 @@ import { SEOHead } from '@/components/SEOHead'
 import { useAuthStore, useCalcStore } from '@/store'
 import { getCalculator } from '@/calculators'
 import { formatValue } from '@/components/ResultCard'
-import { ExoClickAd } from '@/components/ExoClickAd'
+import { AdBanner } from '@/components/AdBanner'
 
 export function DashboardPage() {
   const { user, isAuthenticated } = useAuthStore()
@@ -146,7 +146,7 @@ export function DashboardPage() {
           </section>
 
           {/* Ad — above footer */}
-          <ExoClickAd className="mt-8 pt-6 border-t border-ink-800/50" />
+          <AdBanner className="mt-10 pt-6 border-t border-ink-800/40" />
 
         </div>
       </div>

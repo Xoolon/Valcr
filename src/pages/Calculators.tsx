@@ -3,6 +3,7 @@ import { Search } from 'lucide-react'
 import { SEOHead } from '@/components/SEOHead'
 import { CalculatorCard } from '@/components/CalculatorCard'
 import { CALCULATORS } from '@/calculators'
+import { AdBanner } from '@/components/AdBanner'
 
 export function CalculatorsPage() {
   const [query, setQuery] = useState('')
@@ -72,6 +73,8 @@ export function CalculatorsPage() {
               </div>
             </section>
           )}
+
+         {!query && <AdBanner className="my-6" />}
 
           {/* Freelancer teaser */}
           {!query && (

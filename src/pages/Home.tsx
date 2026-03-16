@@ -4,6 +4,7 @@ import { Search, ArrowRight, Zap, Code2, TrendingUp, Lock } from 'lucide-react'
 import { SEOHead } from '@/components/SEOHead'
 import { CalculatorCard } from '@/components/CalculatorCard'
 import { CALCULATORS } from '@/calculators'
+import { AdBanner } from '@/components/AdBanner'
 
 const FEATURES = [
   {
@@ -191,6 +192,13 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Ad — between features and CTA */}
+      <div className="px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <AdBanner className="py-4 border-t border-b border-ink-800/40" />
+        </div>
+      </div>
 
       {/* CTA */}
       <section className="py-20 px-4 sm:px-6">
