@@ -52,7 +52,7 @@ export function SignupPage() {
         setUser({
           id: data.user_id, email: data.email || '',
           firstName: data.first_name || '', lastName: '',
-          accountTier: data.tier, emailVerified: true,
+          accountTier: data.tier, emailVerified: true,isAdmin: data.is_admin === true,
         }, data.access_token)
         navigate(isPaid ? '/pricing' : '/dashboard')
       } catch (err: any) {
@@ -83,7 +83,7 @@ export function SignupPage() {
       setUser({
         id: data.user_id, email: form.email,
         firstName: data.first_name || form.firstName, lastName: form.lastName,
-        accountTier: 'free', emailVerified: false,
+        accountTier: 'free', emailVerified: false,isAdmin: data.is_admin === true,
       }, data.access_token)
 
       if (isPaid) {
