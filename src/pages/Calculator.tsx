@@ -130,8 +130,8 @@ export function CalculatorPage() {
 
           <AdBanner className="mt-8 mb-2" />
 
-         <BenchmarksSection slug={calculator.slug} />
-         <RelatedBlogPost slug={calculator.slug} />
+          <BenchmarksSection slug={calculator.slug} />
+          <RelatedBlogPost slug={calculator.slug} />
 
           {/* Related calculators */}
           {related.length > 0 && (
@@ -308,6 +308,51 @@ const BENCHMARKS: Record<string, { title: string; items: { label: string; value:
       { label: '5–10%', value: '🟡 Manageable', note: 'Free shipping threshold strategy recommended' },
       { label: '10–15%', value: '⚠️ High', note: 'Consider dimensional weight optimisation and rate shopping' },
       { label: 'Above 15%', value: '🔴 Critical', note: 'Shipping is eroding margin significantly — optimise packaging' },
+    ],
+  },
+  'wholesale-margin-calculator': {
+    title: 'Wholesale Margin Benchmarks',
+    items: [
+      { label: 'Below 30%', value: '⚠️ Too thin', note: 'Cannot absorb trade discounts or returns profitably' },
+      { label: '30–45%', value: '🟡 Acceptable', note: 'Viable but leaves little room for negotiation' },
+      { label: '45–60%', value: '✅ Healthy', note: 'Industry standard for most consumer goods categories' },
+      { label: 'Above 60%', value: '🚀 Strong', note: 'Excellent — can offer meaningful trade discounts' },
+    ],
+  },
+  'etsy-fee-calculator': {
+    title: 'Etsy Net Margin Benchmarks',
+    items: [
+      { label: 'Below 10%', value: '⚠️ Unsustainable', note: 'You are not paying yourself for your time' },
+      { label: '10–25%', value: '🟡 Thin', note: 'Consider raising prices — Etsy buyers expect premium' },
+      { label: '25–45%', value: '✅ Healthy', note: 'Good margin for handmade and creative products' },
+      { label: 'Above 45%', value: '🚀 Excellent', note: 'Strong — room to invest in materials and photography' },
+    ],
+  },
+  'profit-per-sku': {
+    title: 'SKU Profitability Benchmarks',
+    items: [
+      { label: 'Below 10% margin', value: '🔴 Cut or reprice', note: 'Not worth the operational complexity to carry' },
+      { label: '10–25% margin', value: '🟡 Marginal', note: 'Keep only if it drives other sales or fills out range' },
+      { label: '25–45% margin', value: '✅ Core product', note: 'Healthy SKU — maintain and defend' },
+      { label: 'Above 45% margin', value: '🚀 Hero SKU', note: 'Invest in ads and inventory — this is your engine' },
+    ],
+  },
+  'ad-spend-budget-calculator': {
+    title: 'Ad Spend as % of Revenue Benchmarks',
+    items: [
+      { label: 'Below 10%', value: '🟡 Under-investing', note: 'Potentially leaving growth on the table' },
+      { label: '10–20%', value: '✅ Mature brand', note: 'Efficient — strong organic and repeat purchase base' },
+      { label: '20–35%', value: '✅ Growth phase', note: 'Normal for brands scaling aggressively' },
+      { label: 'Above 35%', value: '⚠️ Check margins', note: 'High dependency on paid — build organic channels' },
+    ],
+  },
+  'email-marketing-roi': {
+    title: 'Email Marketing Benchmarks',
+    items: [
+      { label: 'Open rate below 15%', value: '⚠️ Low', note: 'Clean list and improve subject lines urgently' },
+      { label: 'Open rate 20–30%', value: '✅ Industry avg', note: 'Healthy — focus on click rates to grow revenue' },
+      { label: 'Revenue/sub below $0.05', value: '⚠️ Low value', note: 'Segmentation and offers need improvement' },
+      { label: 'Revenue/sub $0.50+', value: '🚀 Best in class', note: 'Scale list growth aggressively' },
     ],
   },
 }

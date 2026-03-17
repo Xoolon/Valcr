@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Check, Zap, Building2, Globe } from 'lucide-react'
+import { Check, Zap, Building2, Globe, Shield } from 'lucide-react'
 import { SEOHead } from '@/components/SEOHead'
 import { useAuthStore } from '@/store'
 
@@ -45,19 +45,23 @@ export function PricingPage() {
   const { isAuthenticated, token, user } = useAuthStore()
   const navigate = useNavigate()
 
-  const handlePlanClick = async (plan: string, defaultHref: string) => {
-    if (plan === 'free') { navigate('/calculators'); return }
+  const isAdmin = user?.isAdmin === true
 
-    // Already on this plan
+  const handlePlanClick = async (plan: string, defaultHref: string) => {
+    // Admin bypasses all payment flows — just navigate to the relevant area
+    if (isAdmin) {
+      navigate('/dashboard')
+      return
+    }
+
+    if (plan === 'free') { navigate('/calculators'); return }
     if (user?.accountTier === plan) { navigate('/dashboard'); return }
 
     if (!isAuthenticated) {
-      // Not logged in — go to signup with plan pre-selected
       navigate(`/signup?plan=${plan}`)
       return
     }
 
-    // Logged in — go straight to Paystack checkout
     try {
       const res = await fetch(`${API}/payments/subscribe`, {
         method: 'POST',
@@ -66,7 +70,6 @@ export function PricingPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.detail || 'Payment error')
-      // Redirect to Paystack hosted checkout page
       window.location.href = data.authorization_url
     } catch (err: any) {
       alert(err.message || 'Could not start checkout. Please try again.')
@@ -82,6 +85,17 @@ export function PricingPage() {
       />
       <div className="pt-28 pb-20 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
+
+          {/* Admin notice banner */}
+          {isAdmin && (
+            <div className="mb-10 card p-4 border-acid/30 bg-acid/5 flex items-center gap-3">
+              <Shield className="w-5 h-5 text-acid shrink-0" />
+              <p className="text-sm text-ink-200">
+                You are viewing this page as <span className="text-acid font-700">Admin</span>. All plans are unlocked — clicking any plan button returns you to your dashboard.
+              </p>
+            </div>
+          )}
+
           <div className="text-center mb-16">
             <span className="section-tag mb-4 inline-flex">Simple pricing</span>
             <h1 className="font-display font-800 text-5xl text-ink-50 mb-4">
@@ -95,13 +109,16 @@ export function PricingPage() {
           {/* Subscription plans */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
             {PLANS.map((plan) => {
-              const isCurrentPlan = user?.accountTier === plan.plan
+              // Admin sees all plans as "active" — no upsell needed
+              const isCurrentPlan = isAdmin || user?.accountTier === plan.plan
               return (
                 <div key={plan.name} className={`card p-7 relative overflow-hidden ${plan.highlighted ? 'border-acid/40 shadow-acid/20 shadow-lg' : ''}`}>
                   {plan.highlighted && <div className="absolute top-0 left-0 right-0 h-0.5 bg-acid" />}
                   {plan.highlighted && (
                     <div className="absolute top-3 right-3">
-                      <span className="bg-acid text-ink-950 text-xs font-display font-700 px-2 py-0.5 rounded-full">Most popular</span>
+                      <span className="bg-acid text-ink-950 text-xs font-display font-700 px-2 py-0.5 rounded-full">
+                        Most popular
+                      </span>
                     </div>
                   )}
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
@@ -122,7 +139,11 @@ export function PricingPage() {
                       </li>
                     ))}
                   </ul>
-                  {isCurrentPlan ? (
+                  {isAdmin ? (
+                    <div className="w-full text-center py-3 rounded-lg bg-acid/10 border border-acid/30 text-acid text-sm font-700 flex items-center justify-center gap-2">
+                      <Shield className="w-3.5 h-3.5" />Unlocked — Admin
+                    </div>
+                  ) : isCurrentPlan ? (
                     <div className="w-full text-center py-3 rounded-lg bg-acid/10 border border-acid/30 text-acid text-sm font-700">
                       ✓ Current plan
                     </div>
@@ -165,14 +186,23 @@ export function PricingPage() {
                       </li>
                     ))}
                   </ul>
-                  <button onClick={() => handlePlanClick(plan.plan, `/signup?plan=${plan.plan}`)}
-                    className="btn-secondary w-full justify-center text-sm">
-                    Get started
-                  </button>
+                  {isAdmin ? (
+                    <div className="w-full text-center py-2.5 rounded-lg bg-acid/10 border border-acid/30 text-acid text-xs font-700 flex items-center justify-center gap-1.5">
+                      <Shield className="w-3 h-3" />Unlocked — Admin
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handlePlanClick(plan.plan, `/signup?plan=${plan.plan}`)}
+                      className="btn-secondary w-full justify-center text-sm"
+                    >
+                      Get started
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
           </div>
+
         </div>
       </div>
     </>

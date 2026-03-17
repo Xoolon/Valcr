@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { Nav } from '@/components/Nav'
 import { Footer } from '@/components/Footer'
+import { SupportWidget } from '@/components/SupportWidget'
 import { HomePage } from '@/pages/Home'
 import { CalculatorsPage } from '@/pages/Calculators'
 import { CalculatorPage } from '@/pages/Calculator'
@@ -16,16 +17,31 @@ import { AboutPage } from '@/pages/legal/About'
 import { PrivacyPage } from '@/pages/legal/Privacy'
 import { TermsPage } from '@/pages/legal/Terms'
 import { BlogPage } from '@/pages/legal/Blog'
+import { BlogPostPage } from '@/pages/blog/BlogPost'
 import { AdminPage } from '@/pages/admin/Admin'
 import { PaymentVerifyPage } from '@/pages/PaymentVerify'
 import { NotFoundPage } from '@/pages/NotFound'
-import { BlogPostPage } from '@/pages/blog/BlogPost'
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 const NO_FOOTER = ['/login', '/signup', '/forgot-password', '/reset-password', '/payments/verify']
 
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
+
+function PageTracker() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    const skip = ['/admin', '/dashboard', '/login', '/signup', '/forgot-password', '/reset-password', '/payments']
+    if (skip.some((p) => pathname.startsWith(p))) return
+    fetch(`${API}/analytics/pageview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: pathname, referrer: document.referrer || '' }),
+    }).catch(() => {})
+  }, [pathname])
   return null
 }
 
@@ -36,6 +52,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
+      <PageTracker />
       <Nav />
       <main className="flex-1">
         <Routes>
@@ -44,27 +61,23 @@ export default function App() {
           <Route path="/calculators/:slug" element={<CalculatorPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/embed" element={<EmbedPage />} />
-          {/* Auth */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          {/* Dashboard */}
           <Route path="/dashboard" element={<DashboardPage />} />
-          {/* Legal */}
           <Route path="/about" element={<AboutPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
-          {/* Admin */}
           <Route path="/admin" element={<AdminPage />} />
-          {/* Paystack callback */}
           <Route path="/payments/verify" element={<PaymentVerifyPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
       {showFooter && <Footer />}
+      <SupportWidget />
     </div>
   )
 }

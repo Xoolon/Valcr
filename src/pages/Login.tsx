@@ -33,6 +33,7 @@ async function exchangeOAuthToken(accessToken: string, setUser: any) {
     lastName: '',
     accountTier: data.tier,
     emailVerified: true,
+    isAdmin: data.is_admin === true,
   }, data.access_token)
 }
 
@@ -85,6 +86,7 @@ export function LoginPage() {
         lastName: '',
         accountTier: data.tier,
         emailVerified: data.email_verified,
+        isAdmin: data.is_admin === true,
       }, data.access_token)
       navigate(redirect)
     } catch (err: any) {
@@ -110,7 +112,6 @@ export function LoginPage() {
             <p className="text-ink-400 text-sm">Log in to access your saved calculations.</p>
           </div>
 
-          {/* Google OAuth */}
           <div className="mb-5">
             <button
               onClick={() => { setError(''); googleLogin() }}

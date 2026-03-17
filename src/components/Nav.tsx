@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, Calculator, Zap } from 'lucide-react'
+import { Menu, X, Calculator, Zap, Shield } from 'lucide-react'
 import { useAuthStore } from '@/store'
 import clsx from 'clsx'
 
@@ -18,10 +18,14 @@ export function Nav() {
 
   useEffect(() => { setOpen(false) }, [location])
 
+  const isAdmin = user?.isAdmin === true
+
   const links = [
     { href: '/calculators', label: 'Calculators' },
     { href: '/pricing', label: 'Pricing' },
     { href: '/embed', label: 'Embed' },
+    // Admin-only link — only shows when logged in as admin
+    ...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : []),
   ]
 
   return (
@@ -34,14 +38,19 @@ export function Nav() {
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
           <div className="w-8 h-8 bg-acid rounded-lg flex items-center justify-center shadow-acid/40 shadow-sm group-hover:shadow-acid transition-shadow">
             <span className="font-display font-800 text-ink-950 text-sm leading-none">V</span>
           </div>
-          <span className="font-display font-700 text-ink-50 text-lg tracking-tight">
-            valcr
-          </span>
+          <span className="font-display font-700 text-ink-50 text-lg tracking-tight">valcr</span>
+          {/* Admin badge next to logo */}
+          {isAdmin && (
+            <span className="flex items-center gap-1 text-xs font-mono text-acid bg-acid/10 border border-acid/20 rounded-full px-2 py-0.5 ml-1">
+              <Shield className="w-3 h-3" />admin
+            </span>
+          )}
         </Link>
 
         {/* Desktop Nav */}
@@ -52,9 +61,13 @@ export function Nav() {
               to={link.href}
               className={clsx(
                 'px-4 py-2 rounded-lg font-body font-500 text-sm transition-all duration-150',
-                location.pathname.startsWith(link.href)
-                  ? 'text-acid bg-acid/10'
-                  : 'text-ink-200 hover:text-ink-50 hover:bg-ink-800'
+                link.href === '/admin'
+                  ? location.pathname === '/admin'
+                    ? 'text-acid bg-acid/10'
+                    : 'text-acid/70 hover:text-acid hover:bg-acid/10'
+                  : location.pathname.startsWith(link.href)
+                    ? 'text-acid bg-acid/10'
+                    : 'text-ink-200 hover:text-ink-50 hover:bg-ink-800'
               )}
             >
               {link.label}
@@ -75,9 +88,7 @@ export function Nav() {
             </>
           ) : (
             <>
-              <Link to="/login" className="btn-ghost text-sm">
-                Log in
-              </Link>
+              <Link to="/login" className="btn-ghost text-sm">Log in</Link>
               <Link to="/signup" className="btn-primary text-sm py-2 px-5">
                 <Zap className="w-3.5 h-3.5" />
                 Get Pro
@@ -104,9 +115,16 @@ export function Nav() {
               <Link
                 key={link.href}
                 to={link.href}
-                className="flex items-center gap-2 px-4 py-3 rounded-xl text-ink-200 hover:text-ink-50 hover:bg-ink-800 font-500 transition-all"
+                className={clsx(
+                  'flex items-center gap-2 px-4 py-3 rounded-xl font-500 transition-all',
+                  link.href === '/admin'
+                    ? 'text-acid hover:bg-acid/10'
+                    : 'text-ink-200 hover:text-ink-50 hover:bg-ink-800'
+                )}
               >
-                <Calculator className="w-4 h-4 opacity-60" />
+                {link.href === '/admin'
+                  ? <Shield className="w-4 h-4" />
+                  : <Calculator className="w-4 h-4 opacity-60" />}
                 {link.label}
               </Link>
             ))}

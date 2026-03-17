@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Trash2, ExternalLink, Clock, Lock } from 'lucide-react'
+import { Trash2, ExternalLink, Clock, Lock, Shield } from 'lucide-react'
 import { SEOHead } from '@/components/SEOHead'
 import { useAuthStore, useCalcStore } from '@/store'
 import { getCalculator } from '@/calculators'
@@ -9,6 +9,8 @@ import { AdBanner } from '@/components/AdBanner'
 export function DashboardPage() {
   const { user, isAuthenticated } = useAuthStore()
   const { savedCalculations, recentSlugs, deleteCalculation } = useCalcStore()
+
+  const isAdmin = user?.isAdmin === true
 
   if (!isAuthenticated) {
     return (
@@ -24,6 +26,9 @@ export function DashboardPage() {
   }
 
   const recentCalcs = recentSlugs.map(getCalculator).filter(Boolean)
+
+  // Admin sees their actual tier label OR "Admin" badge
+  const planLabel = isAdmin ? 'Admin' : user?.accountTier
 
   return (
     <>
@@ -42,9 +47,39 @@ export function DashboardPage() {
             </div>
             <div className="text-right">
               <p className="text-xs font-mono text-ink-600 mb-0.5">Plan</p>
-              <span className="text-sm font-display font-700 text-acid capitalize">{user?.accountTier}</span>
+              {isAdmin ? (
+                <span className="flex items-center gap-1 text-sm font-display font-700 text-acid">
+                  <Shield className="w-3.5 h-3.5" />Admin
+                </span>
+              ) : (
+                <span className="text-sm font-display font-700 text-acid capitalize">{planLabel}</span>
+              )}
             </div>
           </div>
+
+          {/* Admin quick links */}
+          {isAdmin && (
+            <div className="mb-6 card p-4 border-acid/20 bg-acid/5">
+              <div className="flex items-center gap-2 mb-3">
+                <Shield className="w-4 h-4 text-acid" />
+                <p className="text-xs font-mono text-acid uppercase tracking-widest">Admin Controls</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link to="/admin" className="btn-primary text-xs py-1.5 px-3">
+                  Admin Dashboard
+                </Link>
+                <Link to="/admin?tab=users" className="btn-secondary text-xs py-1.5 px-3">
+                  Manage Users
+                </Link>
+                <Link to="/admin?tab=support" className="btn-secondary text-xs py-1.5 px-3">
+                  Support Tickets
+                </Link>
+                <Link to="/admin?tab=analytics" className="btn-secondary text-xs py-1.5 px-3">
+                  Traffic
+                </Link>
+              </div>
+            </div>
+          )}
 
           {/* Recently used */}
           {recentCalcs.length > 0 && (
@@ -79,7 +114,8 @@ export function DashboardPage() {
               </span>
             </h2>
 
-            {user?.accountTier === 'free' ? (
+            {/* Admin bypasses paywall — always sees the saved section */}
+            {!isAdmin && user?.accountTier === 'free' ? (
               <div className="card p-6 text-center border-dashed border-ink-700">
                 <p className="text-ink-300 mb-1.5 font-display font-700">Pro feature</p>
                 <p className="text-ink-400 text-sm mb-4">
@@ -145,7 +181,6 @@ export function DashboardPage() {
             )}
           </section>
 
-          {/* Ad — above footer */}
           <AdBanner className="mt-10 pt-6 border-t border-ink-800/40" />
 
         </div>

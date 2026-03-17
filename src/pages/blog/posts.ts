@@ -319,4 +319,86 @@ export const BLOG_POSTS: BlogPost[] = [
 </ol>
     `,
   },
+  {
+    slug: 'wholesale-pricing-guide',
+    title: 'How to Price Your Product for Wholesale Without Losing Money',
+    excerpt: 'Getting wholesale pricing wrong kills brands before they get to retail. Too low and you lose money on every order. Too high and buyers walk. Here is the exact formula.',
+    category: 'Margins',
+    readTime: '7 min read',
+    date: 'Mar 10, 2025',
+    keywords: ['wholesale pricing formula', 'wholesale margin calculator', 'how to price for wholesale', 'retail margin ecommerce'],
+    calculatorSlug: 'wholesale-margin-calculator',
+    calculatorCta: 'Calculate your wholesale margin',
+    content: `
+<h2>The Wholesale Pricing Mistake That Kills Brands</h2>
+<p>The most common wholesale pricing mistake is simple: founders take their DTC price and apply a 50% discount. If they sell for $60 online, they offer retailers $30. It feels logical. It is usually financially disastrous.</p>
+<p>Why? Because your DTC price is built on margins that account for customer acquisition costs, your own fulfilment, and your marketing spend. Strip those out for a wholesale order and your actual cost structure is very different — but your costs are not.</p>
+<p>Wholesale pricing must start from your costs, not from your retail price.</p>
+
+<h2>The Two Margins That Both Have to Work</h2>
+<p>Wholesale pricing has to satisfy two margin requirements simultaneously: yours and the retailer's.</p>
+<p><strong>Your wholesale margin</strong> needs to be high enough to cover your COGS, any manufacturing overhead, shipping to the retailer, and a profit. A minimum of 40% is the starting point for most consumer goods. Below 30% and you cannot absorb chargebacks, returns, or trade discounts without bleeding money.</p>
+<p><strong>The retailer's margin</strong> needs to be attractive enough for them to stock your product. Traditional retail buyers expect 50–60% gross margin. Specialty boutiques may accept 40–50%. Large chains often require 55–65% or more.</p>
+
+<h2>The Wholesale Pricing Formula</h2>
+<p>Start from your total unit cost — COGS plus any inbound shipping or landed cost to get the product ready to ship to a retailer:</p>
+<p><strong>Minimum Wholesale Price = Total Unit Cost ÷ (1 − Target Wholesale Margin)</strong></p>
+<p>Example: Total unit cost is $14. Target wholesale margin is 50%. Minimum wholesale price = $14 ÷ 0.50 = $28.</p>
+<p>Then check the retailer's margin at your price:</p>
+<p><strong>Retailer Margin = (MSRP − Wholesale Price) ÷ MSRP × 100</strong></p>
+<p>If MSRP is $65 and wholesale is $28, retailer margin = ($65 − $28) ÷ $65 = 56.9%. That is excellent — a retailer will be happy with that.</p>
+
+<h2>What Is Keystone Pricing?</h2>
+<p>Keystone pricing is the traditional retail rule: the retailer doubles the wholesale price to set their retail price. For decades this was the standard expectation. It still is in many categories — apparel, accessories, gifts, and specialty food.</p>
+<p>If you know buyers will use keystone, work backward: your wholesale price should be roughly half of what the product will realistically retail for. If competitive retail price is $50, your wholesale price should land around $25 — and your costs must support that.</p>
+
+<h2>Trade Discounts and Volume Pricing</h2>
+<p>Build your wholesale price assuming you will offer trade discounts. Standard terms include early payment discounts (2% off if paid within 10 days, net 30 days), seasonal discounts, and volume discounts at higher MOQ tiers.</p>
+<p>If your base wholesale margin is 45%, you have room to offer a 5% early payment discount and still sit at 40%. If your margin is 32%, any trade discount destroys your profitability. Design your wholesale pricing so that your margin at base price is 10–15 percentage points above your minimum acceptable margin.</p>
+
+<h2>MOQ and Cash Flow</h2>
+<p>Minimum Order Quantity (MOQ) determines how much capital a retailer must commit to stock your product. Set it too high and retailers balk. Set it too low and you lose money on the logistics of small orders.</p>
+<p>A common starting point: set MOQ at the quantity where your shipping cost per unit drops to an acceptable level. For most small brands selling to boutiques, that is 12–24 units per SKU. Calculate your profit on MOQ before pitching. If a retailer orders your MOQ and you make $180 gross profit — is that worth the relationship management and invoicing? Know the number before you send the first email.</p>
+    `,
+  },
+  {
+    slug: 'email-marketing-roi-guide',
+    title: 'Why Your Email List Is Worth More Than Your Ad Account',
+    excerpt: 'Paid ads stop working the moment you stop paying. Your email list compounds. Here is how to measure what your list is actually worth and when to invest in growing it.',
+    category: 'Advertising',
+    readTime: '6 min read',
+    date: 'Mar 3, 2025',
+    keywords: ['email marketing roi', 'email list value', 'email marketing ecommerce', 'revenue per subscriber', 'email vs paid ads'],
+    calculatorSlug: 'email-marketing-roi',
+    calculatorCta: 'Calculate your email marketing ROI',
+    content: `
+<h2>The Asset Most E-Commerce Brands Undervalue</h2>
+<p>Every dollar you spend on Meta or Google ads buys you attention you rent. The moment you stop spending, the traffic stops. Your email list is different — it is an asset you own. Every subscriber you add compounds over time, generating revenue month after month without additional acquisition cost.</p>
+<p>Yet most e-commerce brands spend aggressively on paid ads and almost nothing on building and monetising their email list. The ROI comparison, done properly, is usually not close.</p>
+
+<h2>How to Calculate Email Marketing ROI</h2>
+<p>The framework is a simple funnel: List size → Open rate → Click rate → Purchase conversion → Revenue → Gross profit → Net profit after platform cost.</p>
+<p>A well-run e-commerce email program typically sees: open rate 20–30%, click rate of opens 3–5%, purchase conversion of clicks 2–5%.</p>
+<p>A list of 10,000 subscribers with a 25% open rate, 4% CTR, and 3% purchase conversion generates: 10,000 × 0.25 × 0.04 × 0.03 = 3 orders per campaign. At $80 AOV that is $240 per send. Eight campaigns per month is $1,920 in revenue — from a list that costs $79/month to host.</p>
+
+<h2>Revenue Per Subscriber: The North Star Metric</h2>
+<p>Divide your monthly email revenue by your list size. This is your revenue per subscriber (RPS) — the single most important email marketing metric for e-commerce.</p>
+<ul>
+  <li><strong>Below $0.05/subscriber/month:</strong> Underperforming. List is unengaged or offers are weak.</li>
+  <li><strong>$0.10–$0.30:</strong> Average. Typical of brands with basic broadcast-only programmes.</li>
+  <li><strong>$0.30–$0.80:</strong> Good. Segmented lists with automations contributing.</li>
+  <li><strong>$1.00+:</strong> Best-in-class. Usually brands with strong automations running alongside broadcasts.</li>
+</ul>
+<p>RPS tells you what each new subscriber is worth per month. If your RPS is $0.40 and a subscriber costs you $2.50 to acquire, your payback period is 6.25 months. That calculation gives you a framework for investment decisions.</p>
+
+<h2>Flows vs Broadcasts: The Two Revenue Streams</h2>
+<p><strong>Broadcast campaigns</strong> generate revenue spikes on send days. They require ongoing creative work. Most brands send 2–8 per month.</p>
+<p><strong>Automated flows</strong> (welcome series, abandoned cart, post-purchase, winback) run continuously without ongoing effort after setup. Best-in-class brands generate 30–50% of their total email revenue from flows, often from sequences built years ago.</p>
+<p>If you only have broadcasts and no flows, you are leaving significant revenue on the table. A well-built abandoned cart flow alone typically recovers 5–15% of abandoned carts.</p>
+
+<h2>When to Invest in List Growth</h2>
+<p>List growth investment is justified when your RPS is high enough that each new subscriber pays back their acquisition cost within a reasonable time. If your RPS is $0.50/month and you acquire subscribers at $2.00 via pop-up optimisation, payback is 4 months — an excellent investment.</p>
+<p>If your RPS is $0.08 and subscriber acquisition costs $3.00, payback is 37 months. Fix your programme performance before spending on list growth — you are adding subscribers to a leaky bucket.</p>
+    `,
+  },
 ]

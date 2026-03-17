@@ -8,7 +8,7 @@ export interface User {
   lastName: string
   accountTier: 'free' | 'pro' | 'teams' | 'embed-starter' | 'embed-business' | 'embed-agency'
   emailVerified: boolean
-  isAdmin?: boolean
+  isAdmin: boolean
 }
 
 export interface SavedCalculation {
@@ -78,3 +78,15 @@ export const useCalcStore = create<CalcState>()((set) => ({
       savedCalculations: state.savedCalculations.filter((c) => c.id !== id),
     })),
 }))
+
+// Helper — use this everywhere instead of checking accountTier directly
+// Admins bypass all tier restrictions
+export function hasAccess(user: User | null, requiredTier: User['accountTier']): boolean {
+  if (!user) return false
+  if (user.isAdmin) return true
+  const TIER_RANK: Record<User['accountTier'], number> = {
+    free: 0, pro: 1, teams: 2,
+    'embed-starter': 3, 'embed-business': 4, 'embed-agency': 5,
+  }
+  return TIER_RANK[user.accountTier] >= TIER_RANK[requiredTier]
+}
