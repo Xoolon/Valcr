@@ -21,6 +21,7 @@ function GoogleIcon() {
 async function exchangeOAuthToken(accessToken: string, setUser: any) {
   const res = await fetch(`${API}/auth/oauth`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ provider: 'google', access_token: accessToken }),
   })

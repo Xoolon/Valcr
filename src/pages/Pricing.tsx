@@ -1,9 +1,12 @@
 import { useNavigate } from 'react-router-dom'
-import { Check, Zap, Building2, Globe, Shield } from 'lucide-react'
+import { Check, Zap, Building2, Globe, Shield, Clock } from 'lucide-react'   // added Clock
 import { SEOHead } from '@/components/SEOHead'
 import { useAuthStore } from '@/store'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+
+// Plans that are eligible for a 7-day free trial (embed plans only)
+const TRIAL_ELIGIBLE = new Set(['embed-starter', 'embed-business', 'embed-agency'])
 
 const PLANS = [
   {
@@ -44,19 +47,12 @@ const EMBED_PLANS = [
 export function PricingPage() {
   const { isAuthenticated, token, user } = useAuthStore()
   const navigate = useNavigate()
-
   const isAdmin = user?.isAdmin === true
 
   const handlePlanClick = async (plan: string, defaultHref: string) => {
-    // Admin bypasses all payment flows — just navigate to the relevant area
-    if (isAdmin) {
-      navigate('/dashboard')
-      return
-    }
-
+    if (isAdmin) { navigate('/dashboard'); return }
     if (plan === 'free') { navigate('/calculators'); return }
     if (user?.accountTier === plan) { navigate('/dashboard'); return }
-
     if (!isAuthenticated) {
       navigate(`/signup?plan=${plan}`)
       return
@@ -66,7 +62,10 @@ export function PricingPage() {
       const res = await fetch(`${API}/payments/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({
+          plan,
+          with_trial: TRIAL_ELIGIBLE.has(plan)   // send true for embed plans
+        }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.detail || 'Payment error')
@@ -86,12 +85,11 @@ export function PricingPage() {
       <div className="pt-28 pb-20 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
 
-          {/* Admin notice banner */}
           {isAdmin && (
             <div className="mb-10 card p-4 border-acid/30 bg-acid/5 flex items-center gap-3">
               <Shield className="w-5 h-5 text-acid shrink-0" />
               <p className="text-sm text-ink-200">
-                You are viewing this page as <span className="text-acid font-700">Admin</span>. All plans are unlocked — clicking any plan button returns you to your dashboard.
+                Viewing as <span className="text-acid font-700">Admin</span> — all plans are unlocked.
               </p>
             </div>
           )}
@@ -106,19 +104,15 @@ export function PricingPage() {
             </p>
           </div>
 
-          {/* Subscription plans */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
             {PLANS.map((plan) => {
-              // Admin sees all plans as "active" — no upsell needed
-              const isCurrentPlan = isAdmin || user?.accountTier === plan.plan
+              const isCurrentPlan = !isAdmin && user?.accountTier === plan.plan
               return (
                 <div key={plan.name} className={`card p-7 relative overflow-hidden ${plan.highlighted ? 'border-acid/40 shadow-acid/20 shadow-lg' : ''}`}>
                   {plan.highlighted && <div className="absolute top-0 left-0 right-0 h-0.5 bg-acid" />}
                   {plan.highlighted && (
                     <div className="absolute top-3 right-3">
-                      <span className="bg-acid text-ink-950 text-xs font-display font-700 px-2 py-0.5 rounded-full">
-                        Most popular
-                      </span>
+                      <span className="bg-acid text-ink-950 text-xs font-display font-700 px-2 py-0.5 rounded-full">Most popular</span>
                     </div>
                   )}
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
@@ -141,7 +135,7 @@ export function PricingPage() {
                   </ul>
                   {isAdmin ? (
                     <div className="w-full text-center py-3 rounded-lg bg-acid/10 border border-acid/30 text-acid text-sm font-700 flex items-center justify-center gap-2">
-                      <Shield className="w-3.5 h-3.5" />Unlocked — Admin
+                      <Shield className="w-3.5 h-3.5" /> Unlocked — Admin
                     </div>
                   ) : isCurrentPlan ? (
                     <div className="w-full text-center py-3 rounded-lg bg-acid/10 border border-acid/30 text-acid text-sm font-700">
@@ -160,47 +154,72 @@ export function PricingPage() {
             })}
           </div>
 
-          {/* Embed plans */}
           <div className="border-t border-ink-800 pt-16">
             <div className="flex items-center gap-3 mb-3">
               <Globe className="w-5 h-5 text-sky-400" />
               <span className="section-tag">White-Label Embed</span>
             </div>
             <h2 className="font-display font-800 text-3xl text-ink-50 mb-2">Embed on your site</h2>
-            <p className="text-ink-400 mb-10 max-w-xl">
+            <p className="text-ink-400 mb-3 max-w-xl">
               Add any Valcr calculator to your website with one line of code.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {EMBED_PLANS.map((plan) => (
-                <div key={plan.name} className="card p-6">
-                  <h3 className="font-display font-700 text-ink-50 mb-1">{plan.name}</h3>
-                  <div className="flex items-end gap-1 mb-4">
-                    <span className="font-display font-800 text-3xl text-sky-400">{plan.price}</span>
-                    <span className="text-ink-400 text-sm mb-1">{plan.period}</span>
-                  </div>
-                  <ul className="space-y-2 mb-5">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm">
-                        <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-sky-400" />
-                        <span className="text-ink-200">{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {isAdmin ? (
-                    <div className="w-full text-center py-2.5 rounded-lg bg-acid/10 border border-acid/30 text-acid text-xs font-700 flex items-center justify-center gap-1.5">
-                      <Shield className="w-3 h-3" />Unlocked — Admin
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handlePlanClick(plan.plan, `/signup?plan=${plan.plan}`)}
-                      className="btn-secondary w-full justify-center text-sm"
-                    >
-                      Get started
-                    </button>
-                  )}
-                </div>
-              ))}
+            <div className="flex items-center gap-2 mb-10 text-sm text-sky-400">
+              <Clock className="w-4 h-4 shrink-0" />
+              <span>All embed plans include a <strong>7-day free trial</strong> — card required, auto-charged after trial. Cancel any time.</span>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {EMBED_PLANS.map((plan) => {
+                const isCurrentPlan = !isAdmin && user?.accountTier === plan.plan
+                return (
+                  <div key={plan.name} className="card p-6 relative overflow-hidden">
+                    <div className="absolute top-3 right-3">
+                      <span className="flex items-center gap-1 text-xs font-mono text-sky-400 bg-sky-400/10 border border-sky-400/20 rounded-full px-2 py-0.5">
+                        <Clock className="w-3 h-3" />7-day trial
+                      </span>
+                    </div>
+                    <h3 className="font-display font-700 text-ink-50 mb-1 pr-24">{plan.name}</h3>
+                    <div className="flex items-end gap-1 mb-4">
+                      <span className="font-display font-800 text-3xl text-sky-400">{plan.price}</span>
+                      <span className="text-ink-400 text-sm mb-1">{plan.period}</span>
+                    </div>
+                    <div className="bg-sky-400/5 border border-sky-400/15 rounded-lg px-3 py-2 mb-4">
+                      <p className="text-xs text-sky-400 font-600">Free for 7 days</p>
+                      <p className="text-xs text-ink-500 mt-0.5">Then {plan.price}/month — cancel before trial ends to pay nothing</p>
+                    </div>
+                    <ul className="space-y-2 mb-5">
+                      {plan.features.map((f) => (
+                        <li key={f} className="flex items-start gap-2 text-sm">
+                          <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-sky-400" />
+                          <span className="text-ink-200">{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {isAdmin ? (
+                      <div className="w-full text-center py-2.5 rounded-lg bg-acid/10 border border-acid/30 text-acid text-xs font-700 flex items-center justify-center gap-1.5">
+                        <Shield className="w-3 h-3" /> Unlocked — Admin
+                      </div>
+                    ) : isCurrentPlan ? (
+                      <div className="w-full text-center py-2.5 rounded-lg bg-sky-400/10 border border-sky-400/30 text-sky-400 text-sm font-700">
+                        ✓ Current plan
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handlePlanClick(plan.plan, `/signup?plan=${plan.plan}`)}
+                        className="btn-secondary w-full justify-center text-sm"
+                      >
+                        Start Free Trial
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            <p className="text-xs text-ink-600 text-center">
+              Card details required to start trial. You will be charged after 7 days unless you cancel.
+              Subscriptions renew automatically — cancel any time from your dashboard.
+            </p>
           </div>
 
         </div>

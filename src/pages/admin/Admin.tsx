@@ -12,6 +12,217 @@ import { useAuthStore } from '@/store'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 
+// Add to your tab list in Admin.tsx:
+// { id: 'reports', label: 'Reports', icon: <TrendingUp className="w-4 h-4" /> }
+
+// Add this component at the bottom of Admin.tsx:
+
+const CALCULATOR_OPTIONS = [
+  { value: 'shopify-profit-margin', label: 'Shopify Profit Margin' },
+  { value: 'true-landed-cost', label: 'True Landed Cost' },
+  { value: 'roas-calculator', label: 'ROAS Calculator' },
+  { value: 'customer-acquisition-cost', label: 'Customer Acquisition Cost' },
+  { value: 'amazon-fba-calculator', label: 'Amazon FBA Calculator' },
+  { value: 'break-even-units', label: 'Break-Even Units' },
+  { value: 'cash-flow-runway', label: 'Cash Flow Runway' },
+  { value: 'subscription-ltv', label: 'Subscription LTV' },
+  { value: 'inventory-reorder-point', label: 'Inventory Reorder Point' },
+  { value: 'pricing-strategy', label: 'Pricing Strategy' },
+]
+
+function ReportsTab({ token }: { token: string }) {
+  const [selectedCalc, setSelectedCalc] = useState('shopify-profit-margin')
+  const [users, setUsers] = useState<any[]>([])
+  const [loadingUsers, setLoadingUsers] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [report, setReport] = useState<any>(null)
+  const [loadingReport, setLoadingReport] = useState(false)
+
+
+  const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+  const h = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+
+  const loadUsers = async () => {
+    setLoadingUsers(true)
+    const res = await fetch(`${API}/benchmarks/admin/calculator-users/${selectedCalc}?limit=20`, { headers: h })
+    if (res.ok) { const d = await res.json(); setUsers(d.users || []) }
+    setLoadingUsers(false)
+  }
+
+  const generateReport = async (user: any) => {
+    setSelectedUser(user)
+    setLoadingReport(true)
+    setReport(null)
+    const res = await fetch(`${API}/benchmarks/admin/generate-report`, {
+      method: 'POST', headers: h,
+      body: JSON.stringify({ user_id: user.id, calculator_slug: selectedCalc }),
+    })
+    if (res.ok) { const d = await res.json(); setReport(d) }
+    else { const d = await res.json(); alert(d.detail || 'Failed') }
+    setLoadingReport(false)
+  }
+
+  const copyReportAsText = () => {
+    if (!report) return
+    const lines = [
+      `Valcr Benchmark Report — ${report.user.first_name}`,
+      `Calculator: ${report.calculator_slug}`,
+      `Segment: ${report.segment_key}`,
+      `Date: ${new Date(report.calculation_date).toLocaleDateString()}`,
+      '',
+      '── Your Results vs Industry ──',
+      '',
+      ...report.report_summary.map((s: any) =>
+        `${s.label}: ${s.user_value?.toFixed(2)} (${s.percentile}th percentile)\n${s.insight}\n${s.action}\nIndustry median: ${s.p50?.toFixed(2)}`
+      ),
+      '',
+      '── What This Means ──',
+      report.report_summary.filter((s: any) => s.percentile <= 40).length > 0
+        ? `You have ${report.report_summary.filter((s: any) => s.percentile <= 40).length} metrics below median. Valcr Pro can track these monthly.`
+        : 'Your metrics are competitive. Valcr Pro helps you stay ahead.',
+    ]
+    navigator.clipboard.writeText(lines.join('\n'))
+    alert('Report copied to clipboard — paste into email or PDF tool')
+  }
+
+  const PCT_COLOR = (p: number) => p >= 75 ? '#C8FF57' : p >= 40 ? '#57C8FF' : '#FF6B57'
+  const PCT_LABEL = (p: number) => p >= 75 ? 'Top 25%' : p >= 50 ? 'Above median' : p >= 25 ? 'Below median' : 'Bottom 25%'
+
+  return (
+    <div className="space-y-6">
+      <div className="card p-6">
+        <h2 className="font-display font-700 text-ink-50 mb-2">Manual Benchmark Reports</h2>
+        <p className="text-ink-400 text-sm mb-5">
+          Find users who ran a calculator, generate their benchmark report, and use it for manual outreach.
+          This is your tool for validating the Pro pricing before the UI is fully live.
+        </p>
+
+        <div className="flex gap-4 mb-5">
+          <div className="flex-1">
+            <label className="label">Calculator</label>
+            <select value={selectedCalc} onChange={e => setSelectedCalc(e.target.value)} className="input-field">
+              {CALCULATOR_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+          <div className="flex items-end">
+            <button onClick={loadUsers} disabled={loadingUsers} className="btn-primary">
+              {loadingUsers ? 'Loading…' : 'Find users'}
+            </button>
+          </div>
+        </div>
+
+        {users.length > 0 && (
+          <div>
+            <p className="text-xs font-mono text-ink-600 uppercase tracking-widest mb-3">
+              {users.length} users ran this calculator
+            </p>
+            <div className="space-y-2">
+              {users.map(u => (
+                <div key={u.id} className="flex items-center justify-between card p-3">
+                  <div>
+                    <p className="text-sm font-600 text-ink-100">{u.email}</p>
+                    <p className="text-xs text-ink-600 font-mono mt-0.5">
+                      {u.run_count}x runs · Last: {u.last_used ? new Date(u.last_used).toLocaleDateString() : 'unknown'}
+                      {u.segment_key && ` · ${u.segment_key}`}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-ink-500 capitalize">{u.account_tier}</span>
+                    <button onClick={() => generateReport(u)} className="btn-secondary text-xs py-1.5 px-3">
+                      Generate report
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {loadingReport && (
+        <div className="card p-8 text-center">
+          <div className="w-6 h-6 border-2 border-ink-700 border-t-acid rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-ink-400 text-sm">Generating report for {selectedUser?.email}…</p>
+        </div>
+      )}
+
+      {report && !loadingReport && (
+        <div className="card p-6">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h3 className="font-display font-800 text-xl text-ink-50">
+                Report: {report.user.first_name || report.user.email}
+              </h3>
+              <p className="text-ink-400 text-xs mt-1 font-mono">
+                {report.calculator_slug} · {report.segment_key} · {new Date(report.calculation_date).toLocaleDateString()}
+              </p>
+            </div>
+            <button onClick={copyReportAsText} className="btn-primary text-xs">
+              Copy as text
+            </button>
+          </div>
+
+          {report.report_summary.length === 0 ? (
+            <div className="card p-4 border-dashed border-ink-700">
+              <p className="text-ink-400 text-sm text-center">
+                No published benchmarks yet for this calculator/segment.
+                Run <code className="text-acid font-mono">python run_benchmarks.py</code> after collecting 30+ events.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {report.report_summary.map((s: any) => (
+                <div key={s.metric} className="border border-ink-800 rounded-xl p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <p className="font-display font-700 text-ink-50 text-sm">{s.label}</p>
+                    <span className="text-xs font-600 px-2 py-0.5 rounded-full"
+                      style={{ color: PCT_COLOR(s.percentile), background: `${PCT_COLOR(s.percentile)}18`, border: `1px solid ${PCT_COLOR(s.percentile)}30` }}>
+                      {PCT_LABEL(s.percentile)} ({s.percentile}th pct)
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3 mb-3 text-center">
+                    <div className="bg-ink-900 rounded-lg p-2">
+                      <p className="text-[10px] text-ink-600 font-mono mb-1">YOUR VALUE</p>
+                      <p className="font-display font-700 text-ink-50 text-sm">{s.user_value?.toFixed(2)}</p>
+                    </div>
+                    <div className="bg-ink-900 rounded-lg p-2">
+                      <p className="text-[10px] text-ink-600 font-mono mb-1">MEDIAN</p>
+                      <p className="font-display font-700 text-ink-400 text-sm">{s.p50?.toFixed(2)}</p>
+                    </div>
+                    <div className="bg-ink-900 rounded-lg p-2">
+                      <p className="text-[10px] text-ink-600 font-mono mb-1">TOP 25%</p>
+                      <p className="font-display font-700 text-acid text-sm">{s.p75?.toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-ink-200 mb-1">{s.insight}</p>
+                  <p className="text-xs text-ink-500">{s.action}</p>
+                  <p className="text-[10px] text-ink-700 font-mono mt-2">Based on {s.sample_size} similar businesses</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Outreach script */}
+          <div className="mt-6 p-4 bg-acid/5 border border-acid/20 rounded-xl">
+            <p className="text-xs font-mono text-acid uppercase tracking-widest mb-2">Outreach Script</p>
+            <p className="text-sm text-ink-200 leading-relaxed">
+              "Hi {report.user.first_name || 'there'}, I noticed you've been using our{' '}
+              {report.calculator_slug.replace(/-/g, ' ')} calculator. I pulled your numbers and compared them
+              to {report.report_summary[0]?.sample_size || 'similar'} businesses in your segment.
+              {report.report_summary.filter((s: any) => s.percentile <= 40).length > 0
+                ? ` Your ${report.report_summary.filter((s: any) => s.percentile <= 40).map((s: any) => s.label.toLowerCase()).join(' and ')} ${report.report_summary.filter((s: any) => s.percentile <= 40).length === 1 ? 'is' : 'are'} below median — I can show you what the top 25% are doing differently.`
+                : ` You're performing well — in the top quartile for most metrics.`
+              } Would a monthly benchmark report be useful to you? I'm testing Pro at $12/month."
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const PLAN_COLORS: Record<string, string> = {
   free: 'text-ink-400 bg-ink-800 border-ink-700',
   pro: 'text-acid bg-acid/10 border-acid/30',
@@ -97,6 +308,7 @@ export function AdminPage() {
   const [adminNotes, setAdminNotes] = useState('')
   const [adminReply, setAdminReply] = useState('')
   const [savingTicket, setSavingTicket] = useState(false)
+   const [grantUser, setGrantUser] = useState<{ id: string; email: string } | null>(null)
 
   const h = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
 
@@ -533,18 +745,26 @@ export function AdminPage() {
                               <td className="px-4 py-3 text-xs text-ink-500 font-mono whitespace-nowrap">
                                 {u.last_login ? new Date(u.last_login).toLocaleDateString() : 'Never'}
                               </td>
-                              <td className="px-4 py-3">
-                                <button
-                                  onClick={() => toggleUserActive(u.id)}
-                                  className={`text-xs px-2 py-1 rounded border transition-colors ${
-                                    u.is_active
-                                      ? 'border-red-400/30 text-red-400 hover:bg-red-400/10'
-                                      : 'border-acid/30 text-acid hover:bg-acid/10'
-                                  }`}
-                                >
-                                  {u.is_active ? 'Disable' : 'Enable'}
-                                </button>
-                              </td>
+            <td className="px-4 py-3">
+  <div className="flex items-center gap-2">
+    <button
+      onClick={() => setGrantUser({ id: u.id, email: u.email })}
+      className="text-xs px-2 py-1 rounded border border-acid/30 text-acid hover:bg-acid/10 transition-colors"
+    >
+      Grant access
+    </button>
+    <button
+      onClick={() => toggleUserActive(u.id)}
+      className={`text-xs px-2 py-1 rounded border transition-colors ${
+        u.is_active
+          ? 'border-red-400/30 text-red-400 hover:bg-red-400/10'
+          : 'border-acid/30 text-acid hover:bg-acid/10'
+      }`}
+    >
+      {u.is_active ? 'Disable' : 'Enable'}
+    </button>
+  </div>
+</td>
                             </tr>
                           ))
                       }
@@ -797,6 +1017,88 @@ export function AdminPage() {
           )}
         </div>
       </div>
+      {grantUser && (
+  <GrantAccessModal
+    user={grantUser}
+    token={token!}
+    onClose={() => setGrantUser(null)}
+    onSuccess={() => { setGrantUser(null); fetchUsers() }}
+  />
+)}
     </>
+  )
+}
+
+
+// Add this modal component inside Admin.tsx
+
+function GrantAccessModal({
+  user,
+  token,
+  onClose,
+  onSuccess,
+}: {
+  user: { id: string; email: string }
+  token: string
+  onClose: () => void
+  onSuccess: () => void
+}) {
+  const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+  const [tier, setTier] = useState('pro')
+  const [lifetime, setLifetime] = useState(true)
+  const [reason, setReason] = useState('Early access — beta tester')
+  const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
+
+  const grant = async () => {
+    setLoading(true)
+    setErr('')
+    const r = await fetch(`${API}/admin/users/${user.id}/grant-access`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier, lifetime, reason }),
+    })
+    setLoading(false)
+    if (r.ok) { onSuccess(); onClose() }
+    else { const d = await r.json(); setErr(d.detail || 'Failed') }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="card p-6 w-full max-w-md">
+        <h3 className="font-display font-700 text-ink-50 text-lg mb-1">Grant Access</h3>
+        <p className="text-ink-400 text-sm mb-5">{user.email}</p>
+        {err && <p className="text-red-400 text-sm mb-3">{err}</p>}
+        <div className="space-y-4">
+          <div>
+            <label className="label">Plan tier</label>
+            <select value={tier} onChange={e => setTier(e.target.value)} className="input-field">
+              <option value="pro">Pro ($9/mo)</option>
+              <option value="teams">Teams ($29/mo)</option>
+              <option value="embed-starter">Embed Starter ($49/mo)</option>
+              <option value="embed-business">Embed Business ($99/mo)</option>
+              <option value="embed-agency">Embed Agency ($249/mo)</option>
+            </select>
+          </div>
+          <div>
+            <label className="label">Reason</label>
+            <input className="input-field" value={reason} onChange={e => setReason(e.target.value)} />
+          </div>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div onClick={() => setLifetime(!lifetime)}
+              className={`w-10 h-6 rounded-full transition-colors relative ${lifetime ? 'bg-acid' : 'bg-ink-700'}`}>
+              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${lifetime ? 'translate-x-5' : 'translate-x-1'}`} />
+            </div>
+            <span className="text-sm text-ink-200">Lifetime access (10 years)</span>
+          </label>
+        </div>
+        <div className="flex gap-3 mt-6">
+          <button onClick={grant} disabled={loading} className="btn-primary flex-1">
+            {loading ? 'Granting…' : `Grant ${lifetime ? 'Lifetime' : 'Free'} ${tier}`}
+          </button>
+          <button onClick={onClose} className="btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
   )
 }

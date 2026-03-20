@@ -14,7 +14,8 @@ export function CalculatorCard({ calculator, className, compact = false }: Calcu
     <Link
       to={`/calculators/${calculator.slug}`}
       className={clsx(
-        'group card-hover block p-3 relative overflow-hidden',
+        'group card-hover block p-3 sm:p-5',
+        'relative overflow-hidden',
         className
       )}
     >
@@ -26,28 +27,28 @@ export function CalculatorCard({ calculator, className, compact = false }: Calcu
 
       {/* Icon */}
       <div
-        className="w-8 h-8 rounded-lg flex items-center justify-center text-base mb-2 transition-transform duration-300 group-hover:scale-110"
+        className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-base sm:text-xl mb-2 sm:mb-3 transition-transform duration-300 group-hover:scale-110"
         style={{ background: `${calculator.color}18`, border: `1px solid ${calculator.color}30` }}
       >
         {calculator.icon}
       </div>
 
-      {/* Name */}
-      <h3 className="font-display font-700 text-ink-50 text-xs leading-snug mb-1">
+      {/* Name — always visible */}
+      <h3 className="font-display font-700 text-ink-50 text-xs sm:text-sm leading-snug mb-1">
         {calculator.shortName}
       </h3>
 
-      {/* Tagline — only on desktop, hidden on mobile */}
+      {/* Tagline — hidden on mobile to save space */}
       {!compact && (
-        <p className="hidden sm:block text-ink-500 text-xs leading-relaxed line-clamp-2 mb-2">
+        <p className="text-ink-400 text-xs leading-relaxed line-clamp-2 mb-2 hidden sm:block">
           {calculator.tagline}
         </p>
       )}
 
-      {/* Arrow */}
-      <div className="flex justify-end mt-1">
+      {/* Arrow — always show on mobile as affordance */}
+      <div className="flex items-center justify-end mt-1">
         <ArrowRight
-          className="w-3 h-3 text-ink-600 group-hover:text-acid group-hover:translate-x-0.5 transition-all duration-200"
+          className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-ink-600 group-hover:text-acid group-hover:translate-x-0.5 transition-all duration-200"
         />
       </div>
     </Link>

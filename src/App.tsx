@@ -21,6 +21,9 @@ import { BlogPostPage } from '@/pages/blog/BlogPost'
 import { AdminPage } from '@/pages/admin/Admin'
 import { PaymentVerifyPage } from '@/pages/PaymentVerify'
 import { NotFoundPage } from '@/pages/NotFound'
+import { ConsentBanner } from '@/components/ConsentBanner'
+import { VerifyEmailPage } from '@/pages/VerifyEmail'
+import { ProfilePage } from '@/pages/Profile'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 const NO_FOOTER = ['/login', '/signup', '/forgot-password', '/reset-password', '/payments/verify']
@@ -74,9 +77,12 @@ export default function App() {
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/payments/verify" element={<PaymentVerifyPage />} />
           <Route path="*" element={<NotFoundPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </main>
       {showFooter && <Footer />}
+      <ConsentBanner />
       <SupportWidget />
     </div>
   )
