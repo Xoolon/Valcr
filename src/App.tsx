@@ -24,6 +24,8 @@ import { NotFoundPage } from '@/pages/NotFound'
 import { ConsentBanner } from '@/components/ConsentBanner'
 import { VerifyEmailPage } from '@/pages/VerifyEmail'
 import { ProfilePage } from '@/pages/Profile'
+import { CookieBanner } from '@/components/CookieBanner'
+import { SharedCalculationPage } from '@/pages/SharedCalculation'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 const NO_FOOTER = ['/login', '/signup', '/forgot-password', '/reset-password', '/payments/verify']
@@ -69,6 +71,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/shared/:token" element={<SharedCalculationPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
@@ -79,9 +82,11 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+
         </Routes>
       </main>
       {showFooter && <Footer />}
+      <CookieBanner />
       <ConsentBanner />
       <SupportWidget />
     </div>

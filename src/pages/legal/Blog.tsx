@@ -14,9 +14,8 @@ export function BlogPage() {
         canonicalPath="/blog"
         keywords={['ecommerce blog', 'shopify guides', 'amazon fba tips', 'ecommerce margins', 'roas calculator guide']}
       />
-
-      <div className="pt-28 pb-20 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto">
+<div className="pt-20 sm:pt-28 pb-20 px-4 sm:px-6">
+  <div className="max-w-5xl mx-auto">
 
           <div className="mb-12">
             <span className="section-tag mb-4 inline-flex">
@@ -47,7 +46,7 @@ export function BlogPage() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {BLOG_POSTS.map((post) => (
               <Link key={post.slug} to={`/blog/${post.slug}`} className="card-hover p-6 group block">
                 <div className="flex items-center gap-2 mb-3">

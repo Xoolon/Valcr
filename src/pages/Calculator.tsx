@@ -99,6 +99,8 @@ export function CalculatorPage() {
           {/* Calculator — side by side on desktop, stacked on mobile */}
           <CalculatorForm calculator={calculator} />
 
+          <AdBanner className="mt-8 mb-2" />
+
           {/* How it works */}
           <section className="mt-12 sm:mt-16 max-w-3xl">
             <h2 className="font-display font-800 text-xl sm:text-2xl text-ink-50 mb-4">

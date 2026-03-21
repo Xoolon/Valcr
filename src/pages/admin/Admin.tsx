@@ -5,17 +5,16 @@ import {
   BarChart2, ArrowUpRight, ArrowDownRight, Lock,
   Search, RefreshCw, CheckCircle, XCircle, ChevronLeft,
   ChevronRight, Eye, MessageSquare, Calculator, Globe,
-  Clock, Trash2, AlertCircle, Mail,
+  Clock, Trash2, AlertCircle, Mail, Megaphone,   // ← Added Megaphone
 } from 'lucide-react'
 import { SEOHead } from '@/components/SEOHead'
 import { useAuthStore } from '@/store'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 
-// Add to your tab list in Admin.tsx:
-// { id: 'reports', label: 'Reports', icon: <TrendingUp className="w-4 h-4" /> }
-
-// Add this component at the bottom of Admin.tsx:
+// ─────────────────────────────────────────────────────────────────────────────
+// ReportsTab (already in your code – keep as is)
+// ─────────────────────────────────────────────────────────────────────────────
 
 const CALCULATOR_OPTIONS = [
   { value: 'shopify-profit-margin', label: 'Shopify Profit Margin' },
@@ -38,8 +37,6 @@ function ReportsTab({ token }: { token: string }) {
   const [report, setReport] = useState<any>(null)
   const [loadingReport, setLoadingReport] = useState(false)
 
-
-  const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
   const h = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
 
   const loadUsers = async () => {
@@ -223,6 +220,119 @@ function ReportsTab({ token }: { token: string }) {
   )
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// NEW: PromotionsTab – send mass notifications and emails
+// ─────────────────────────────────────────────────────────────────────────────
+
+function PromotionsTab({ token }: { token: string }) {
+  const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+  const [form, setForm] = useState({
+    title: '', body: '', cta_label: 'Try it now',
+    cta_url: 'https://valcr.site/calculators',
+    target: 'all', send_email: true, send_notification: true,
+  })
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<any>(null)
+  const [err, setErr] = useState('')
+
+  const send = async () => {
+    if (!form.title || !form.body) { setErr('Title and body are required'); return }
+    setLoading(true); setErr(''); setResult(null)
+    const r = await fetch(`${API}/admin/promotions/send`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    })
+    setLoading(false)
+    if (r.ok) setResult(await r.json())
+    else { const d = await r.json(); setErr(d.detail || 'Failed') }
+  }
+
+  const f = (k: string) => (e: any) => setForm(p => ({ ...p, [k]: e.target?.value ?? e }))
+
+  return (
+    <div className="max-w-xl space-y-5">
+      <div className="card p-5">
+        <h2 className="font-display font-700 text-ink-50 mb-5">Send Promotion</h2>
+        {err && <p className="text-red-400 text-sm mb-3">{err}</p>}
+        {result && (
+          <div className="mb-4 p-3 bg-acid/10 border border-acid/20 rounded-xl text-sm text-acid">
+            ✓ Sent to {result.users_targeted} users —{' '}
+            {result.notifications_sent} notifications, {result.emails_sent} emails
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <div>
+            <label className="label">Title</label>
+            <input className="input-field" value={form.title} onChange={f('title')}
+              placeholder="🎉 New benchmark data is live!" />
+          </div>
+          <div>
+            <label className="label">Body</label>
+            <textarea className="input-field min-h-[80px] resize-none" value={form.body}
+              onChange={f('body')}
+              placeholder="We've added benchmark data for 3 new calculator segments. See how your margins compare." />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="label">CTA label</label>
+              <input className="input-field" value={form.cta_label} onChange={f('cta_label')} />
+            </div>
+            <div>
+              <label className="label">CTA URL</label>
+              <input className="input-field" value={form.cta_url} onChange={f('cta_url')} />
+            </div>
+          </div>
+          <div>
+            <label className="label">Target audience</label>
+            <select className="input-field" value={form.target} onChange={f('target')}>
+              <option value="all">All users</option>
+              <option value="free">Free users only</option>
+              <option value="pro">Pro/paid users only</option>
+              <option value="email_only">Email only (no notification)</option>
+            </select>
+          </div>
+          <div className="flex gap-6">
+            {[['send_notification', 'In-app notification'], ['send_email', 'Email (marketing opt-ins)']].map(([k, label]) => (
+              <label key={k} className="flex items-center gap-2 cursor-pointer">
+                <div onClick={() => setForm(p => ({ ...p, [k]: !p[k as keyof typeof p] }))}
+                  className={`w-9 h-5 rounded-full transition-colors relative ${form[k as keyof typeof form] ? 'bg-acid' : 'bg-ink-700'}`}>
+                  <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${form[k as keyof typeof form] ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                </div>
+                <span className="text-sm text-ink-300">{label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+        <button onClick={send} disabled={loading} className="btn-primary mt-5 w-full justify-center">
+          {loading ? 'Sending…' : `Send to ${form.target === 'all' ? 'all users' : form.target + ' users'}`}
+        </button>
+      </div>
+
+      {/* Ad poster preview */}
+      <div className="card p-5">
+        <h2 className="font-display font-700 text-ink-50 mb-3">Internal Ad Poster Preview</h2>
+        <p className="text-ink-400 text-xs mb-4">This is how the promotion looks as an in-app ad banner.</p>
+        <div className="bg-ink-900 border border-acid/20 rounded-xl p-4 flex items-center gap-4">
+          <div className="w-10 h-10 bg-acid rounded-lg flex items-center justify-center shrink-0">
+            <span className="font-display font-800 text-ink-950 text-sm">V</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-700 text-ink-50 text-sm">{form.title || 'Promotion title'}</p>
+            <p className="text-ink-400 text-xs mt-0.5 line-clamp-1">{form.body || 'Promotion body text'}</p>
+          </div>
+          <a href={form.cta_url} className="btn-primary text-xs py-1.5 px-3 shrink-0">{form.cta_label}</a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main AdminPage (keep all existing tabs, add 'promotions' to TABS)
+// ─────────────────────────────────────────────────────────────────────────────
+
 const PLAN_COLORS: Record<string, string> = {
   free: 'text-ink-400 bg-ink-800 border-ink-700',
   pro: 'text-acid bg-acid/10 border-acid/30',
@@ -270,7 +380,7 @@ function KpiCard({ label, value, sub, delta, icon }: {
   )
 }
 
-type Tab = 'overview' | 'analytics' | 'users' | 'support'
+type Tab = 'overview' | 'analytics' | 'users' | 'support' | 'promotions'  // ← Added 'promotions'
 
 export function AdminPage() {
   const { token, user } = useAuthStore()
@@ -308,7 +418,7 @@ export function AdminPage() {
   const [adminNotes, setAdminNotes] = useState('')
   const [adminReply, setAdminReply] = useState('')
   const [savingTicket, setSavingTicket] = useState(false)
-   const [grantUser, setGrantUser] = useState<{ id: string; email: string } | null>(null)
+  const [grantUser, setGrantUser] = useState<{ id: string; email: string } | null>(null)
 
   const h = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
 
@@ -432,6 +542,7 @@ export function AdminPage() {
     { id: 'analytics', label: 'Traffic',   icon: <Eye className="w-4 h-4" /> },
     { id: 'users',     label: 'Users',     icon: <Users className="w-4 h-4" /> },
     { id: 'support',   label: 'Support',   icon: <MessageSquare className="w-4 h-4" /> },
+    { id: 'promotions', label: 'Promotions', icon: <Megaphone className="w-4 h-4" /> },  // ← New tab
   ]
 
   return (
@@ -458,12 +569,12 @@ export function AdminPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-0 mb-8 border-b border-ink-800">
+          <div className="flex gap-0 mb-8 border-b border-ink-800 overflow-x-auto">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-5 py-3 text-sm font-display font-600 border-b-2 transition-all -mb-px ${
+                className={`flex items-center gap-2 px-5 py-3 text-sm font-display font-600 border-b-2 transition-all -mb-px whitespace-nowrap ${
                   tab === t.id
                     ? 'border-acid text-acid'
                     : 'border-transparent text-ink-500 hover:text-ink-200 hover:border-ink-600'
@@ -474,9 +585,11 @@ export function AdminPage() {
             ))}
           </div>
 
-          {/* ═══════════════════════════════════ OVERVIEW ══ */}
+          {/* Tab content */}
           {tab === 'overview' && (
+            // ... your existing overview content ...
             <div className="space-y-8">
+              {/* Keep existing overview JSX – same as your current code */}
               {loadingStats ? (
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {[...Array(8)].map((_, i) => (
@@ -501,7 +614,6 @@ export function AdminPage() {
                       icon={<Activity className="w-4 h-4" />} />
                   </div>
 
-                  {/* Plan breakdown */}
                   <div className="card p-6">
                     <h2 className="font-display font-700 text-ink-50 mb-5">Users by Plan</h2>
                     <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
@@ -518,7 +630,6 @@ export function AdminPage() {
                     </div>
                   </div>
 
-                  {/* Health */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="card p-5">
                       <p className="text-xs font-mono text-ink-600 uppercase tracking-widest mb-2">Email Verified</p>
@@ -549,8 +660,8 @@ export function AdminPage() {
             </div>
           )}
 
-          {/* ═══════════════════════════════════ ANALYTICS ══ */}
           {tab === 'analytics' && (
+            // ... your existing analytics content ...
             <div className="space-y-8">
               {loadingAnalytics ? (
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -576,7 +687,6 @@ export function AdminPage() {
                           icon={<Clock className="w-4 h-4" />} />
                       </div>
 
-                      {/* Bar chart */}
                       {visits.daily_breakdown?.length > 0 && (
                         <div className="card p-6">
                           <h2 className="font-display font-700 text-ink-50 mb-5">Daily Traffic — Last 30 Days</h2>
@@ -602,7 +712,6 @@ export function AdminPage() {
                   )}
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Top calculators */}
                     <div className="card p-6">
                       <div className="flex items-center gap-2 mb-5">
                         <Calculator className="w-4 h-4 text-acid" />
@@ -626,7 +735,6 @@ export function AdminPage() {
                       })}
                     </div>
 
-                    {/* Top pages */}
                     <div className="card p-6">
                       <div className="flex items-center gap-2 mb-5">
                         <Globe className="w-4 h-4 text-acid" />
@@ -655,8 +763,8 @@ export function AdminPage() {
             </div>
           )}
 
-          {/* ═══════════════════════════════════ USERS ══ */}
           {tab === 'users' && (
+            // ... your existing users content ...
             <div className="space-y-5">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
@@ -688,7 +796,7 @@ export function AdminPage() {
                             {h}
                           </th>
                         ))}
-                      </tr>
+                       </tr>
                     </thead>
                     <tbody>
                       {loadingUsers
@@ -745,29 +853,28 @@ export function AdminPage() {
                               <td className="px-4 py-3 text-xs text-ink-500 font-mono whitespace-nowrap">
                                 {u.last_login ? new Date(u.last_login).toLocaleDateString() : 'Never'}
                               </td>
-            <td className="px-4 py-3">
-  <div className="flex items-center gap-2">
-    <button
-      onClick={() => setGrantUser({ id: u.id, email: u.email })}
-      className="text-xs px-2 py-1 rounded border border-acid/30 text-acid hover:bg-acid/10 transition-colors"
-    >
-      Grant access
-    </button>
-    <button
-      onClick={() => toggleUserActive(u.id)}
-      className={`text-xs px-2 py-1 rounded border transition-colors ${
-        u.is_active
-          ? 'border-red-400/30 text-red-400 hover:bg-red-400/10'
-          : 'border-acid/30 text-acid hover:bg-acid/10'
-      }`}
-    >
-      {u.is_active ? 'Disable' : 'Enable'}
-    </button>
-  </div>
-</td>
+                              <td className="px-4 py-3">
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => setGrantUser({ id: u.id, email: u.email })}
+                                    className="text-xs px-2 py-1 rounded border border-acid/30 text-acid hover:bg-acid/10 transition-colors"
+                                  >
+                                    Grant access
+                                  </button>
+                                  <button
+                                    onClick={() => toggleUserActive(u.id)}
+                                    className={`text-xs px-2 py-1 rounded border transition-colors ${
+                                      u.is_active
+                                        ? 'border-red-400/30 text-red-400 hover:bg-red-400/10'
+                                        : 'border-acid/30 text-acid hover:bg-acid/10'
+                                    }`}
+                                  >
+                                    {u.is_active ? 'Disable' : 'Enable'}
+                                  </button>
+                                </div>
+                              </td>
                             </tr>
-                          ))
-                      }
+                          ))}
                     </tbody>
                   </table>
                 </div>
@@ -791,10 +898,9 @@ export function AdminPage() {
             </div>
           )}
 
-          {/* ═══════════════════════════════════ SUPPORT ══ */}
           {tab === 'support' && (
+            // ... your existing support content ...
             <div className="space-y-5">
-              {/* Filters */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-600 pointer-events-none" />
@@ -820,7 +926,6 @@ export function AdminPage() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-                {/* Ticket list */}
                 <div className="lg:col-span-2 space-y-2">
                   {loadingTickets
                     ? [...Array(5)].map((_, i) => <div key={i} className="card p-4 animate-pulse h-24" />)
@@ -870,11 +975,9 @@ export function AdminPage() {
                   )}
                 </div>
 
-                {/* Ticket detail */}
                 <div className="lg:col-span-3">
                   {selected ? (
                     <div className="card p-6 space-y-5">
-                      {/* Ticket header */}
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <h3 className="font-display font-700 text-ink-50 text-lg leading-snug mb-1">
@@ -897,7 +1000,6 @@ export function AdminPage() {
                         </button>
                       </div>
 
-                      {/* Status + Priority row */}
                       <div className="flex gap-3 flex-wrap">
                         <div>
                           <p className="text-xs font-mono text-ink-600 uppercase tracking-widest mb-1.5">Status</p>
@@ -940,7 +1042,6 @@ export function AdminPage() {
                         </div>
                       </div>
 
-                      {/* Original message */}
                       <div>
                         <p className="text-xs font-mono text-ink-600 uppercase tracking-widest mb-2">User message</p>
                         <div className="bg-ink-800/50 rounded-xl p-4">
@@ -950,7 +1051,6 @@ export function AdminPage() {
                         </div>
                       </div>
 
-                      {/* Admin reply */}
                       <div>
                         <p className="text-xs font-mono text-ink-600 uppercase tracking-widest mb-2">
                           Reply to user
@@ -965,7 +1065,6 @@ export function AdminPage() {
                         />
                       </div>
 
-                      {/* Admin notes */}
                       <div>
                         <p className="text-xs font-mono text-ink-600 uppercase tracking-widest mb-2">
                           Internal notes <span className="text-ink-700 normal-case">(not visible to user)</span>
@@ -979,7 +1078,6 @@ export function AdminPage() {
                         />
                       </div>
 
-                                           {/* Save */}
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => saveTicket()}
@@ -1015,23 +1113,26 @@ export function AdminPage() {
               </div>
             </div>
           )}
+
+          {tab === 'promotions' && (
+            <PromotionsTab token={token!} />
+          )}
+
         </div>
       </div>
       {grantUser && (
-  <GrantAccessModal
-    user={grantUser}
-    token={token!}
-    onClose={() => setGrantUser(null)}
-    onSuccess={() => { setGrantUser(null); fetchUsers() }}
-  />
-)}
+        <GrantAccessModal
+          user={grantUser}
+          token={token!}
+          onClose={() => setGrantUser(null)}
+          onSuccess={() => { setGrantUser(null); fetchUsers() }}
+        />
+      )}
     </>
   )
 }
 
-
-// Add this modal component inside Admin.tsx
-
+// GrantAccessModal (keep as is – same as your current code)
 function GrantAccessModal({
   user,
   token,

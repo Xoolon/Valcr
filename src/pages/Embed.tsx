@@ -69,7 +69,7 @@ export function EmbedPage() {
         keywords={['embed calculator website', 'embeddable calculator', 'white label calculator', 'calculator widget']}
       />
 
-      <div className="pt-28 pb-20 px-4 sm:px-6">
+      <div className="pt-20 sm:pt-28 pb-20 px-3 sm:px-6">
         <div className="max-w-5xl mx-auto">
 
           {/* Header */}

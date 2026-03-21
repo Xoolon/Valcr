@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, Zap, Building2, Globe, Shield, Clock } from 'lucide-react'   // added Clock
+import { Check, Zap, Building2, Globe, Shield, Clock, Loader2 } from 'lucide-react'
 import { SEOHead } from '@/components/SEOHead'
 import { useAuthStore } from '@/store'
 
@@ -44,10 +45,41 @@ const EMBED_PLANS = [
     features: ['Unlimited calculators', 'Full white-label', 'Multi-client'] },
 ]
 
+// Replace the existing PaystackLoadingOverlay component with this:
+function PaystackLoadingOverlay({ plan, isTrial }: { plan: string; isTrial: boolean }) {
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+      style={{ background: 'rgba(10,10,15,0.93)', backdropFilter: 'blur(18px)' }}>
+      <div className="w-16 h-16 bg-acid rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-acid/20">
+        <span className="font-display font-800 text-ink-950 text-2xl">V</span>
+      </div>
+      <Loader2 className="w-6 h-6 text-acid animate-spin mb-5" />
+      <p className="font-display font-700 text-ink-50 text-lg mb-1">Preparing secure checkout</p>
+      <p className="text-ink-400 text-sm mb-5">Setting up your {plan} plan…</p>
+
+      {isTrial && (
+        <div className="max-w-xs text-center bg-sky-400/8 border border-sky-400/20 rounded-xl px-5 py-4">
+          <p className="text-sky-400 text-xs font-600 uppercase tracking-widest mb-2">Free trial — how it works</p>
+          <p className="text-ink-300 text-xs leading-relaxed">
+            We'll charge <strong className="text-ink-100">$1.00</strong> to verify your card,
+            then refund it immediately. Your free trial begins now.
+            After 7 days, you'll be charged the plan amount automatically.
+            Cancel any time before then — no charge.
+          </p>
+        </div>
+      )}
+
+      <p className="text-ink-600 text-xs mt-6 font-mono">Secured by Paystack · SSL encrypted</p>
+    </div>
+  )
+}
+
 export function PricingPage() {
   const { isAuthenticated, token, user } = useAuthStore()
   const navigate = useNavigate()
   const isAdmin = user?.isAdmin === true
+  const [error, setError] = useState<string | null>(null)           // ← Added
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)  // ← Added
 
   const handlePlanClick = async (plan: string, defaultHref: string) => {
     if (isAdmin) { navigate('/dashboard'); return }
@@ -58,20 +90,22 @@ export function PricingPage() {
       return
     }
 
+    setError(null)
+    setCheckoutLoading(plan)
+
     try {
       const res = await fetch(`${API}/payments/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({
-          plan,
-          with_trial: TRIAL_ELIGIBLE.has(plan)   // send true for embed plans
-        }),
+        body: JSON.stringify({ plan, with_trial: TRIAL_ELIGIBLE.has(plan) }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.detail || 'Payment error')
+      // Keep overlay showing while redirect happens
       window.location.href = data.authorization_url
     } catch (err: any) {
-      alert(err.message || 'Could not start checkout. Please try again.')
+      setCheckoutLoading(null)
+      setError(err.message || 'Could not start checkout. Please try again.')
     }
   }
 
@@ -82,8 +116,23 @@ export function PricingPage() {
         description="Free forever for basic use. Pro at $9/mo unlocks saved calculations, PDF export, and scenario comparison."
         canonicalPath="/pricing"
       />
-      <div className="pt-28 pb-20 px-4 sm:px-6">
+
+      {/* Paystack loading overlay */}
+      {checkoutLoading && (
+  <PaystackLoadingOverlay
+    plan={checkoutLoading}
+    isTrial={TRIAL_ELIGIBLE.has(checkoutLoading)}
+  />
+)}
+
+      <div className="pt-20 sm:pt-28 pb-20 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
+
+          {error && (
+            <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl">
+              {error}
+            </div>
+          )}
 
           {isAdmin && (
             <div className="mb-10 card p-4 border-acid/30 bg-acid/5 flex items-center gap-3">
@@ -95,7 +144,7 @@ export function PricingPage() {
           )}
 
           <div className="text-center mb-16">
-            <span className="section-tag mb-4 inline-flex">Simple pricing</span>
+            <span className="section-tag mb-4 inline-flex">Simple, honest pricing</span>
             <h1 className="font-display font-800 text-5xl text-ink-50 mb-4">
               Start free. Upgrade when it matters.
             </h1>
