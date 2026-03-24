@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, Zap, Building2, Globe, Shield, Clock, Loader2 } from 'lucide-react'
 import { SEOHead } from '@/components/SEOHead'
@@ -45,8 +45,16 @@ const EMBED_PLANS = [
     features: ['Unlimited calculators', 'Full white-label', 'Multi-client'] },
 ]
 
-// Replace the existing PaystackLoadingOverlay component with this:
-function PaystackLoadingOverlay({ plan, isTrial }: { plan: string; isTrial: boolean }) {
+function PaystackLoadingOverlay({ plan, isTrial, onTimeout }: { plan: string; isTrial: boolean; onTimeout?: () => void }) {
+  // Auto-close after 30 seconds if redirect doesn't happen (prevents infinite loading)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (onTimeout) onTimeout()
+    }, 30000)
+
+    return () => clearTimeout(timeout)
+  }, [onTimeout])
+
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
       style={{ background: 'rgba(10,10,15,0.93)', backdropFilter: 'blur(18px)' }}>
@@ -78,8 +86,8 @@ export function PricingPage() {
   const { isAuthenticated, token, user } = useAuthStore()
   const navigate = useNavigate()
   const isAdmin = user?.isAdmin === true
-  const [error, setError] = useState<string | null>(null)           // ← Added
-  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)  // ← Added
+  const [error, setError] = useState<string | null>(null)
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
 
   const handlePlanClick = async (plan: string, defaultHref: string) => {
     if (isAdmin) { navigate('/dashboard'); return }
@@ -99,14 +107,39 @@ export function PricingPage() {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ plan, with_trial: TRIAL_ELIGIBLE.has(plan) }),
       })
+
       const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || 'Payment error')
-      // Keep overlay showing while redirect happens
-      window.location.href = data.authorization_url
+
+      if (!res.ok) {
+        throw new Error(data.detail || 'Payment error')
+      }
+
+      if (!data.authorization_url) {
+        throw new Error('No authorization URL received')
+      }
+
+      // Small delay to ensure overlay is visible, then redirect
+      setTimeout(() => {
+        window.location.href = data.authorization_url
+      }, 500)
+
     } catch (err: any) {
+      console.error('Checkout error:', err)
       setCheckoutLoading(null)
       setError(err.message || 'Could not start checkout. Please try again.')
+
+      // Auto-clear error after 5 seconds
+      setTimeout(() => {
+        setError(null)
+      }, 5000)
     }
+  }
+
+  const handleTimeout = () => {
+    console.warn('Checkout timeout - redirect took too long')
+    setCheckoutLoading(null)
+    setError('Checkout is taking longer than expected. Please try again.')
+    setTimeout(() => setError(null), 5000)
   }
 
   return (
@@ -119,18 +152,25 @@ export function PricingPage() {
 
       {/* Paystack loading overlay */}
       {checkoutLoading && (
-  <PaystackLoadingOverlay
-    plan={checkoutLoading}
-    isTrial={TRIAL_ELIGIBLE.has(checkoutLoading)}
-  />
-)}
+        <PaystackLoadingOverlay
+          plan={checkoutLoading}
+          isTrial={TRIAL_ELIGIBLE.has(checkoutLoading)}
+          onTimeout={handleTimeout}
+        />
+      )}
 
       <div className="pt-20 sm:pt-28 pb-20 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
 
           {error && (
-            <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl">
-              {error}
+            <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl flex items-center justify-between">
+              <span>{error}</span>
+              <button
+                onClick={() => setError(null)}
+                className="ml-4 text-red-400 hover:text-red-300 text-xs"
+              >
+                Dismiss
+              </button>
             </div>
           )}
 
@@ -193,9 +233,14 @@ export function PricingPage() {
                   ) : (
                     <button
                       onClick={() => handlePlanClick(plan.plan, plan.ctaHref)}
+                      disabled={checkoutLoading !== null}
                       className={plan.highlighted ? 'btn-primary w-full justify-center' : 'btn-secondary w-full justify-center'}
                     >
-                      {plan.cta}
+                      {checkoutLoading === plan.plan ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        plan.cta
+                      )}
                     </button>
                   )}
                 </div>
@@ -255,9 +300,14 @@ export function PricingPage() {
                     ) : (
                       <button
                         onClick={() => handlePlanClick(plan.plan, `/signup?plan=${plan.plan}`)}
+                        disabled={checkoutLoading !== null}
                         className="btn-secondary w-full justify-center text-sm"
                       >
-                        Start Free Trial
+                        {checkoutLoading === plan.plan ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          'Start Free Trial'
+                        )}
                       </button>
                     )}
                   </div>
