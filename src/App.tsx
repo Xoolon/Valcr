@@ -26,6 +26,7 @@ import { VerifyEmailPage } from '@/pages/VerifyEmail'
 import { ProfilePage } from '@/pages/Profile'
 import { CookieBanner } from '@/components/CookieBanner'
 import { SharedCalculationPage } from '@/pages/SharedCalculation'
+import { BlogAdminPage } from '@/pages/admin/BlogAdmin'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 const NO_FOOTER = ['/login', '/signup', '/forgot-password', '/reset-password', '/payments/verify']
@@ -75,6 +76,8 @@ export default function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/admin/blog" element={<BlogAdminPage />} />
+          <Route path="/admin/blog/:slug" element={<BlogAdminPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/admin" element={<AdminPage />} />

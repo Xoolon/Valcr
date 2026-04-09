@@ -1,3 +1,5 @@
+import { ADDITIONAL_BLOG_POSTS } from '@/pages/blog/additional-posts'
+
 export interface BlogPost {
   slug: string
   title: string
@@ -401,4 +403,5 @@ export const BLOG_POSTS: BlogPost[] = [
 <p>If your RPS is $0.08 and subscriber acquisition costs $3.00, payback is 37 months. Fix your programme performance before spending on list growth — you are adding subscribers to a leaky bucket.</p>
     `,
   },
+  ...ADDITIONAL_BLOG_POSTS,
 ]

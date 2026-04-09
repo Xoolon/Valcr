@@ -5,7 +5,7 @@ import {
   BarChart2, ArrowUpRight, ArrowDownRight, Lock,
   Search, RefreshCw, CheckCircle, XCircle, ChevronLeft,
   ChevronRight, Eye, MessageSquare, Calculator, Globe,
-  Clock, Trash2, AlertCircle, Mail, Megaphone,   // ← Added Megaphone
+  Clock, Trash2, AlertCircle, Mail, Megaphone, Pencil,   // ← Added Megaphone
 } from 'lucide-react'
 import { SEOHead } from '@/components/SEOHead'
 import { useAuthStore } from '@/store'
@@ -560,6 +560,9 @@ export function AdminPage() {
               </div>
               <h1 className="font-display font-800 text-3xl text-ink-50">Valcr Dashboard</h1>
             </div>
+            <Link to="/admin/blog" className="btn-secondary text-sm flex items-center gap-2">
+  <Pencil className="w-4 h-4" />Blog Editor
+</Link>
             <button
               onClick={() => { fetchStats(); if (tab === 'analytics') fetchAnalytics(); if (tab === 'users') fetchUsers(); if (tab === 'support') fetchTickets() }}
               className="btn-ghost text-sm gap-2"

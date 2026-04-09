@@ -116,6 +116,56 @@
     @apply font-display font-800 text-acid tabular-nums;
   }
 
+  /* Prose styles — single, clean block */
+  .prose-valcr {
+    @apply text-ink-300 leading-relaxed;
+  }
+
+  .prose-valcr h2 {
+    @apply font-display font-800 text-2xl text-ink-50 mt-10 mb-4 leading-tight;
+  }
+
+  .prose-valcr h3 {
+    @apply font-display font-700 text-xl text-ink-100 mt-8 mb-3 leading-tight;
+  }
+
+  .prose-valcr p {
+    @apply mb-5 text-base leading-relaxed;
+  }
+
+  .prose-valcr ul {
+    @apply list-disc list-outside pl-6 mb-5 space-y-2;
+  }
+
+  .prose-valcr ol {
+    @apply list-decimal list-outside pl-6 mb-5 space-y-2;
+  }
+
+  .prose-valcr li {
+    @apply text-ink-300;
+  }
+
+  .prose-valcr strong {
+    @apply text-ink-100 font-semibold;
+  }
+
+  .prose-valcr em {
+    @apply text-ink-200 italic;
+  }
+
+  .prose-valcr a {
+    @apply text-acid hover:underline;
+  }
+
+  .prose-valcr code {
+    @apply font-mono text-sm bg-ink-800 text-acid px-1.5 py-0.5 rounded;
+  }
+
+  .prose-valcr blockquote {
+    @apply border-l-4 border-acid/40 pl-4 italic text-ink-400 my-6;
+  }
+
+  /* Stagger animations */
   .stagger-child {
     opacity: 1;
     animation: fadeUp 0.5s ease both;
@@ -127,39 +177,6 @@
   .stagger-child:nth-child(4) { animation-delay: 0.20s; }
   .stagger-child:nth-child(5) { animation-delay: 0.25s; }
   .stagger-child:nth-child(6) { animation-delay: 0.30s; }
-}
-
-.prose-valcr {
-    @apply text-ink-200 leading-relaxed;
-  }
-  .prose-valcr h2 {
-    @apply font-display font-800 text-2xl text-ink-50 mt-10 mb-4 leading-tight;
-  }
-  .prose-valcr h3 {
-    @apply font-display font-700 text-lg text-ink-100 mt-7 mb-3;
-  }
-  .prose-valcr p {
-    @apply text-ink-300 text-base leading-relaxed mb-5;
-  }
-  .prose-valcr ul {
-    @apply space-y-2 mb-5 ml-4;
-  }
-  .prose-valcr ol {
-    @apply space-y-2 mb-5 ml-4 list-decimal;
-  }
-  .prose-valcr li {
-    @apply text-ink-300 text-base leading-relaxed;
-  }
-  .prose-valcr strong {
-    @apply font-700 text-ink-100;
-  }
-  .prose-valcr em {
-    @apply italic text-ink-200;
-  }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 @layer utilities {
@@ -179,5 +196,16 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
