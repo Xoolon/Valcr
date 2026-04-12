@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import { Calculator, CalculatorField } from '@/calculators'
 import { calculate, explain, CalcResult } from '@/calculators/engine'
 import { ResultCard, formatValue } from './ResultCard'
-import { BenchmarkPanel } from './BenchmarkPanel'
+import { BenchmarkBadge, BenchmarkGate } from './BenchmarkBadge'
 import { Info } from 'lucide-react'
 import { useTelemetry } from '@/hooks/useTelemetry'
+import { useAuthStore, hasAccess } from '@/store'
 import clsx from 'clsx'
 
 interface CalculatorFormProps {
@@ -12,6 +13,7 @@ interface CalculatorFormProps {
 }
 
 export function CalculatorForm({ calculator }: CalculatorFormProps) {
+  const { user } = useAuthStore()
   const [values, setValues] = useState<Record<string, number | string>>(() =>
     Object.fromEntries(calculator.fields.map((f) => [f.key, f.default]))
   )
@@ -69,14 +71,15 @@ export function CalculatorForm({ calculator }: CalculatorFormProps) {
       {/* Outputs + Benchmarks */}
       <div className="space-y-4">
         <ResultCard calculator={calculator} results={results} explanation={explanation} />
-        <BenchmarkPanel
-          calculatorSlug={calculator.slug}
-          outputs={results as Record<string, number>}
-          inputs={values}
-          highlightedMetrics={highlightedOutputs}
-          formatValue={formatValue}
-          outputMeta={calculator.outputs.map(o => ({ key: o.key, label: o.label, type: o.type }))}
-        />
+        <BenchmarkGate isPro={hasAccess(user, 'pro')}>
+          <BenchmarkBadge
+            calculatorSlug={calculator.slug}
+            outputs={results as Record<string, number>}
+            inputs={values}
+            primaryMetricKey={calculator.outputs.find(o => o.highlight)?.key}
+            accentColor={calculator.color}
+          />
+        </BenchmarkGate>
       </div>
     </div>
   )

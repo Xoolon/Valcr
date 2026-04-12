@@ -23,7 +23,7 @@ const PLANS = [
     tagline: 'For serious operators who need more.',
     icon: <Zap className="w-5 h-5" />, color: '#C8FF57',
     plan: 'pro',
-    features: ['Everything in Free', 'Save unlimited calculations', 'PDF export', 'Shareable links', 'Scenario comparison', 'Priority support'],
+    features: ['Everything in Free', 'Save unlimited calculations', 'PDF export', 'Shareable links', 'Scenario comparison', 'Industry benchmarks', 'Priority support'],
     cta: 'Start Pro', ctaHref: '/signup?plan=pro', highlighted: true,
   },
   {
@@ -146,7 +146,7 @@ export function PricingPage() {
     <>
       <SEOHead
         title="Pricing — Valcr Pro & Embed Plans"
-        description="Free forever for basic use. Pro at $9/mo unlocks saved calculations, PDF export, and scenario comparison."
+        description="Free forever for basic use. Pro at $9/mo unlocks saved calculations, PDF export, Industry benchmarks and scenario comparison."
         canonicalPath="/pricing"
       />
 
