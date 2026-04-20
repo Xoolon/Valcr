@@ -10,6 +10,7 @@ import { useAuthStore, useCalcStore, hasAccess } from '@/store'
 import { getCalculator, CALCULATORS } from '@/calculators'
 import { formatValue } from '@/components/ResultCard'
 
+
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 
 // Calculator options for embed selection - all e-commerce calculators

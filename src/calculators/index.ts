@@ -37,6 +37,7 @@ export interface Calculator {
   outputs: CalculatorOutput[]
   faqs: { q: string; a: string }[]
   relatedSlugs: string[]
+  compareSlug?: string
 }
 
 export const CALCULATORS: Calculator[] = [
@@ -118,6 +119,7 @@ export const CALCULATORS: Calculator[] = [
       { q: 'How do I improve my Shopify profit margin?', a: 'Focus on three levers: reduce COGS through better supplier negotiation or volume, reduce customer acquisition cost through organic channels, and increase average order value through bundles or upsells.' },
     ],
     relatedSlugs: ['true-landed-cost', 'roas-calculator', 'break-even-units'],
+    compareSlug: 'shopify-profit-margin-calculator-vs-google-sheets'
   },
   {
     slug: 'break-even-units',

@@ -1,17 +1,22 @@
+# /public/robots.txt
+# Place this file at valcr-frontend/public/robots.txt
+# Vercel serves it automatically at https://valcr.site/robots.txt
+
 User-agent: *
 Allow: /
 
-Disallow: /dashboard
-Disallow: /dashboard/
+# Disallow admin and auth routes from indexing
 Disallow: /admin
 Disallow: /admin/
 Disallow: /login
 Disallow: /signup
-Disallow: /forgot-password
-Disallow: /reset-password
-Disallow: /payments/
-Disallow: /auth/
+Disallow: /dashboard
 
+# Disallow API routes
 Disallow: /api/
 
+# Crawl-delay for aggressive bots
+Crawl-delay: 1
+
+# Sitemap location
 Sitemap: https://valcr.site/sitemap.xml

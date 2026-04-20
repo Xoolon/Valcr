@@ -10,6 +10,8 @@ import { useCalcStore } from '@/store'
 import clsx from 'clsx'
 import { ArrowRight } from 'lucide-react'
 import { BLOG_POSTS } from '@/pages/blog/posts'
+import { ValcrScore } from '@/components/ValcrScore'
+import { calculatorSchema, breadcrumbSchema } from '@/lib/structuredData'
 
 export function CalculatorPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -23,17 +25,21 @@ export function CalculatorPage() {
 
   if (!calculator) return <Navigate to="/calculators" replace />
 
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'WebApplication',
-    name: calculator.name,
-    description: calculator.description,
-    url: `https://valcr.site/calculators/${calculator.slug}`,
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Any',
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    featureList: calculator.fields.map((f) => f.label).join(', '),
-  }
+const webAppStructuredData = calculatorSchema({
+  name: calculator.name,
+  description: calculator.description,
+  slug: calculator.slug,
+  inputs: calculator.fields.map(field => ({
+    name: field.label,
+    description: field.description || field.label, // fallback if no description
+  })),
+})
+
+  const breadcrumbStructuredData = breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Calculators', path: '/calculators' },
+    { name: calculator.name, path: `/calculators/${calculator.slug}` },
+  ])
 
   const faqStructuredData = {
     '@context': 'https://schema.org',
@@ -53,8 +59,13 @@ export function CalculatorPage() {
         keywords={calculator.seoKeywords}
         canonicalPath={`/calculators/${calculator.slug}`}
         ogType="website"
-        structuredData={structuredData}
+        structuredData={webAppStructuredData}
       />
+            <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbStructuredData) }}
+      />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
@@ -100,6 +111,7 @@ export function CalculatorPage() {
           <CalculatorForm calculator={calculator} />
 
           <AdBanner className="mt-8 mb-2" />
+          <ValcrScore className="mt-8 mb-2"/>
 
           {/* How it works */}
           <section className="mt-12 sm:mt-16 max-w-3xl">
@@ -131,6 +143,7 @@ export function CalculatorPage() {
           )}
 
           <AdBanner className="mt-8 mb-2" />
+          <ValcrScore />
 
           <BenchmarksSection slug={calculator.slug} />
           <RelatedBlogPost slug={calculator.slug} />
@@ -148,7 +161,23 @@ export function CalculatorPage() {
               </div>
             </section>
           )}
-
+{/* Comparison link - Add this BEFORE the closing </div> */}
+{calculator.compareSlug && (
+  <section className="mt-10 max-w-3xl">
+    <div className="card p-5 bg-acid/5 border-acid/20">
+      <h3 className="font-display font-700 text-ink-50 text-sm mb-2">Compare vs. Alternatives</h3>
+      <p className="text-ink-400 text-sm mb-3">
+        See how this calculator stacks up against manual methods and other tools.
+      </p>
+      <Link
+        to={`/compare/${calculator.compareSlug}`}
+        className="text-acid text-sm font-600 hover:underline inline-flex items-center gap-1"
+      >
+        Read comparison <ArrowRight className="w-3 h-3" />
+      </Link>
+    </div>
+  </section>
+)}
         </div>
       </div>
     </>
@@ -405,3 +434,4 @@ function RelatedBlogPost({ slug }: { slug: string }) {
     </section>
   )
 }
+

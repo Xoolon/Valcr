@@ -19,13 +19,13 @@ export function Nav() {
   useEffect(() => { setOpen(false) }, [location])
 
   const isAdmin = user?.isAdmin === true
-  // Hide "Get Pro" if user is already Pro or higher, or is admin
   const showGetPro = !isAuthenticated || (!isAdmin && !hasAccess(user, 'pro'))
 
   const links = [
     { href: '/calculators', label: 'Calculators' },
     { href: '/pricing', label: 'Pricing' },
     { href: '/embed', label: 'Embed' },
+    { href: '/reports', label: 'Benchmarks' },
     ...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : []),
   ]
 
@@ -69,7 +69,6 @@ export function Nav() {
                 <User className="w-5 h-5" />
               </Link>
               <Link to="/dashboard" className="btn-ghost text-sm">{user?.firstName || 'Dashboard'}</Link>
-              {/* Only show Get Pro if not already pro/admin */}
               {showGetPro && (
                 <Link to="/pricing" className="btn-primary text-sm py-2 px-4">
                   <Zap className="w-3.5 h-3.5" />Get Pro
@@ -123,6 +122,9 @@ export function Nav() {
                   <Link to="/login" className="btn-secondary text-sm text-center">Log in</Link>
                   <Link to="/signup" className="btn-primary text-sm justify-center">
                     <Zap className="w-3.5 h-3.5" />Get Pro
+                  </Link>
+                  <Link to="/reports" className="text-ink-400 hover:text-ink-200 text-sm text-center py-2 transition-colors">
+                    Benchmarks
                   </Link>
                 </>
               )}
