@@ -111,7 +111,7 @@ const webAppStructuredData = calculatorSchema({
           <CalculatorForm calculator={calculator} />
 
           <AdBanner className="mt-8 mb-2" />
-          <ValcrScore className="mt-8 mb-2"/>
+          <ValcrScore />
 
           {/* How it works */}
           <section className="mt-12 sm:mt-16 max-w-3xl">
