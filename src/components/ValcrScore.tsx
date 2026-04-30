@@ -258,9 +258,9 @@ export function ValcrScore({ currentCalcSlug, triggerRefetch }: ValcrScoreProps)
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState(false)
 
-  const isPro = user?.account_tier && (
+  const isPro = user?.accountTier && (
     ['pro', 'teams', 'embed-starter', 'embed-business', 'embed-agency', 'diane_pro', 'admin']
-    .includes(user.account_tier)
+    .includes(user.accountTier)
   )
 
   const fetchScore = useCallback(async () => {
