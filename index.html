@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Favicons - REMOVED %PUBLIC_URL% -->
+    <!-- Favicons -->
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -14,26 +14,40 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
+    <!--
+      FIX: Title changed from "valcr.site — ..." to "Valcr — ..."
+      The browser tab and Google both read this tag.
+      Individual pages should override via React Helmet or document.title.
+      This is the fallback for pages that don't set their own title.
+    -->
+    <title>Valcr — E-Commerce Financial Intelligence | Benchmarks & Calculators</title>
+
     <!-- Primary SEO -->
-    <title>Valcr — Professional Calculators for E-Commerce Operators</title>
-    <meta name="description" content="Free specialized calculators for e-commerce operators. Calculate true landed cost, Shopify profit margins, ROAS, CAC, Amazon FBA fees, and 15+ more. Built for serious sellers." />
-    <meta name="keywords" content="ecommerce calculator, shopify profit margin calculator, landed cost calculator, ROAS calculator, amazon fba calculator, CAC calculator" />
+    <meta name="description" content="Free financial intelligence for e-commerce operators. 20 calculators for Shopify, Amazon FBA, Etsy and WooCommerce — plus industry benchmarks, Valcr Score, and AI analysis. No account required." />
+    <meta name="keywords" content="ecommerce calculator, shopify profit margin calculator, amazon fba calculator, roas calculator, ecommerce benchmarks, valcr score, customer acquisition cost, etsy fee calculator" />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://valcr.site/" />
+    <!--
+      FIX: canonical WITHOUT trailing slash.
+      Trailing slash on canonical caused Google to treat
+      /calculators/shopify-profit-margin as a redirect to /
+      because the SPA serves index.html for all routes.
+      Without trailing slash, Google treats each URL independently.
+    -->
+    <link rel="canonical" href="https://valcr.site" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://valcr.site/" />
-    <meta property="og:title" content="Valcr — Professional E-Commerce Calculators" />
-    <meta property="og:description" content="15+ deeply specialized calculators for e-commerce operators. Know your true numbers." />
+    <meta property="og:url" content="https://valcr.site" />
+    <meta property="og:title" content="Valcr — E-Commerce Financial Intelligence" />
+    <meta property="og:description" content="20 free calculators for Shopify, Amazon FBA, and Etsy operators. Industry benchmarks, Valcr Score, and AI-powered analysis. Free, no account required." />
     <meta property="og:image" content="https://valcr.site/og-image.png" />
     <meta property="og:site_name" content="Valcr" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@valcrapp" />
-    <meta name="twitter:title" content="Valcr — Professional E-Commerce Calculators" />
-    <meta name="twitter:description" content="15+ deeply specialized calculators for e-commerce operators. Know your true numbers." />
+    <meta name="twitter:title" content="Valcr — E-Commerce Financial Intelligence" />
+    <meta name="twitter:description" content="20 free calculators plus industry benchmarks and Valcr Score. Know your real Shopify margin, ROAS, and CAC." />
     <meta name="twitter:image" content="https://valcr.site/og-image.png" />
 
     <!-- Fonts -->
@@ -41,24 +55,54 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
 
-    <!-- Structured Data -->
+    <!--
+      FIX: Structured data updated to WebApplication type.
+      Google uses this to understand what the site IS, not just where it is.
+      featureList ensures "Benchmarks" and "Valcr Score" appear in indexed text.
+    -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebSite",
+      "@type": "WebApplication",
       "name": "Valcr",
       "url": "https://valcr.site",
-      "description": "Professional calculators for e-commerce operators",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://valcr.site/calculators?q={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
+      "description": "Financial intelligence platform for e-commerce operators. 20 free calculators, industry benchmarks, Valcr Score, and AI-powered analysis.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Free calculators with optional Pro upgrade from $9/month"
+      },
+      "featureList": [
+        "Shopify profit margin calculator",
+        "Amazon FBA calculator",
+        "ROAS calculator",
+        "Customer acquisition cost calculator",
+        "Etsy fee calculator",
+        "20 free e-commerce calculators",
+        "Industry benchmark comparisons",
+        "Valcr Score financial health rating",
+        "AI-powered financial analysis"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Cyntax LLC",
+        "url": "https://valcr.site"
       }
     }
     </script>
+
+    <!--
+      IMPORTANT — Per-page titles:
+      Each React page component should call:
+        document.title = "Shopify Profit Margin Calculator | Valcr"
+      Or use react-helmet-async for SSR-compatible meta management.
+      Without per-page titles, Google sees "Valcr" for all pages.
+      See the SEOHead component notes below.
+    -->
+    <meta name="google-adsense-account" content="ca-pub-9505934511045266">
   </head>
   <body>
     <div id="root"></div>
