@@ -143,9 +143,10 @@ const webAppStructuredData = calculatorSchema({
           )}
 
           <AdBanner className="mt-8 mb-2" />
-          <ValcrScore />
+
 
           <BenchmarksSection slug={calculator.slug} />
+
           <RelatedBlogPost slug={calculator.slug} />
 
           {/* Related calculators */}

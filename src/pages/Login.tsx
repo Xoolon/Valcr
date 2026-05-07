@@ -187,8 +187,7 @@ export function LoginPage() {
               </div>
             </div>
 
-            {/* Turnstile */}
-            <TurnstileWidget onVerify={setTurnstileToken} />
+
 
             <button onClick={handleLogin} disabled={loading} className="btn-primary w-full justify-center">
               {loading ? 'Signing in…' : 'Sign in'}
