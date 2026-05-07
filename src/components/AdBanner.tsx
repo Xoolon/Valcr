@@ -18,16 +18,16 @@
 import { useEffect, useRef } from 'react'
 
 // ── NETWORK SWITCH — change to 'adsense' once approved ───────────────────────
-const AD_NETWORK: 'exoclick' | 'adsense' | 'placeholder' = 'placeholder'
+const AD_NETWORK: 'exoclick' | 'adsense' | 'placeholder' = 'adsense'
 
 // ── ExoClick Zone IDs ─────────────────────────────────────────────────────────
 const EXOCLICK_DESKTOP_ZONE = 'YOUR_DESKTOP_ZONE_ID'   // 728×90
 const EXOCLICK_MOBILE_ZONE  = 'YOUR_MOBILE_ZONE_ID'    // 320×50
 
 // ── AdSense Config ────────────────────────────────────────────────────────────
-const ADSENSE_CLIENT           = 'ca-pub-XXXXXXXXXXXXXXXXX'
-const ADSENSE_SLOT_LEADERBOARD = 'XXXXXXXXXX'   // 728×90
-const ADSENSE_SLOT_MOBILE      = 'XXXXXXXXXX'   // 320×50
+const ADSENSE_CLIENT           = 'ca-pub-9505934511045266'
+const ADSENSE_SLOT_LEADERBOARD = '8626295205'   // Desktop leaderboard (728×90 auto)
+const ADSENSE_SLOT_MOBILE      = '8626295205'   // Mobile banner (same slot, AdSense handles responsive)
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -62,7 +62,7 @@ function ExoClickSlot({ zoneId, width, height }: { zoneId: string; width: number
 }
 
 // ── AdSense slot ──────────────────────────────────────────────────────────────
-function AdSenseSlot({ slot, width, height }: { slot: string; width: number; height: number }) {
+function AdSenseSlot() {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!ref.current) return
@@ -72,13 +72,14 @@ function AdSenseSlot({ slot, width, height }: { slot: string; width: number; hei
     } catch {}
   }, [])
   return (
-    <div ref={ref} style={{ width, height, overflow: 'hidden' }} aria-label="Advertisement">
+    <div ref={ref} aria-label="Advertisement">
       <ins
         className="adsbygoogle"
-        style={{ display: 'block', width, height }}
+        style={{ display: 'block' }}
         data-ad-client={ADSENSE_CLIENT}
-        data-ad-slot={slot}
-        data-ad-format="fixed"
+        data-ad-slot={ADSENSE_SLOT_LEADERBOARD}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
       />
     </div>
   )
@@ -101,21 +102,12 @@ function PlaceholderSlot({ label, width, height }: { label: string; width: numbe
 export function AdBanner({ className = '' }: AdBannerProps) {
   return (
     <div className={`w-full flex justify-center items-center py-2 ${className}`}>
-
-      {/* Mobile: 320×50 */}
-      <div className="flex sm:hidden">
-        {AD_NETWORK === 'placeholder' && <PlaceholderSlot label="AD · 320×50" width={320} height={50} />}
-        {AD_NETWORK === 'exoclick'    && <ExoClickSlot zoneId={EXOCLICK_MOBILE_ZONE} width={320} height={50} />}
-        {AD_NETWORK === 'adsense'     && <AdSenseSlot slot={ADSENSE_SLOT_MOBILE} width={320} height={50} />}
-      </div>
-
-      {/* Desktop: 728×90 */}
-      <div className="hidden sm:flex">
+      {/* Single responsive AdSense unit — works on both desktop and mobile */}
+      <div className="w-full max-w-7xl mx-auto">
         {AD_NETWORK === 'placeholder' && <PlaceholderSlot label="AD · 728×90 · Leaderboard" width={728} height={90} />}
-        {AD_NETWORK === 'exoclick'    && <ExoClickSlot zoneId={EXOCLICK_DESKTOP_ZONE} width={728} height={90} />}
-        {AD_NETWORK === 'adsense'     && <AdSenseSlot slot={ADSENSE_SLOT_LEADERBOARD} width={728} height={90} />}
+        {AD_NETWORK === 'exoclick'    && <ExoClickSlot zoneId={EXOCLICK_MOBILE_ZONE} width={320} height={50} />}
+        {AD_NETWORK === 'adsense'     && <AdSenseSlot />}
       </div>
-
     </div>
   )
 }
