@@ -1,16 +1,15 @@
 /*!
- * Valcr Embed Widget v1.3.0
+ * Valcr Embed Widget v1.3.1
  * https://valcr.site
  */
 (function (global) {
   'use strict';
 
   var API_BASE = global.VALCR_API_URL || 'https://api.valcr.site/api/v1';
-  var VERSION = '1.3.0';
+  var VERSION = '1.3.1';
 
   // ─── Calculator Definitions ─────────────────────────────────────────────────
   var CALCULATORS = {
-    // 1. True Landed Cost
     'true-landed-cost': {
       name: 'True Landed Cost',
       fields: [
@@ -38,7 +37,6 @@
         };
       }
     },
-    // 2. Shopify Profit Margin
     'shopify-profit-margin': {
       name: 'Shopify Profit Margin',
       fields: [
@@ -63,7 +61,6 @@
         };
       }
     },
-    // 3. Break-Even Units
     'break-even-units': {
       name: 'Break-Even Calculator',
       fields: [
@@ -84,7 +81,6 @@
         };
       }
     },
-    // 4. ROAS Calculator
     'roas-calculator': {
       name: 'ROAS Calculator',
       fields: [
@@ -108,7 +104,6 @@
         };
       }
     },
-    // 5. Customer Acquisition Cost
     'customer-acquisition-cost': {
       name: 'CAC Calculator',
       fields: [
@@ -133,7 +128,6 @@
         };
       }
     },
-    // 6. Inventory Reorder Point
     'inventory-reorder-point': {
       name: 'Reorder Point Calculator',
       fields: [
@@ -141,7 +135,7 @@
         { key: 'demand_variability', label: 'Demand Variability (std dev/day)', default: 5, min: 0 },
         { key: 'lead_time_days', label: 'Supplier Lead Time (days)', default: 14, min: 1 },
         { key: 'lead_time_variability', label: 'Lead Time Variability (days)', default: 3, min: 0 },
-        { key: 'service_level_z', label: 'Service Level Z-Score', default: 1.65, min: 0, description: '90%=1.28 / 95%=1.65 / 99%=2.33' }
+        { key: 'service_level_z', label: 'Service Level Z-Score', default: 1.65, min: 0 }
       ],
       calculate: function (v) {
         var avgLeadDemand = v.daily_demand * v.lead_time_days;
@@ -159,7 +153,6 @@
         };
       }
     },
-    // 7. Cash Flow Runway
     'cash-flow-runway': {
       name: 'Cash Flow Runway',
       fields: [
@@ -175,14 +168,8 @@
         if (burn <= 0) {
           runway = 999;
         } else if (v.revenue_growth_rate > 0) {
-          var cash = v.cash_balance;
-          var rev = v.monthly_revenue;
-          var month = 0;
-          while (cash > 0 && month < 120) {
-            cash -= (v.monthly_expenses - rev);
-            rev *= (1 + v.revenue_growth_rate / 100);
-            month++;
-          }
+          var cash = v.cash_balance, rev = v.monthly_revenue, month = 0;
+          while (cash > 0 && month < 120) { cash -= (v.monthly_expenses - rev); rev *= (1 + v.revenue_growth_rate / 100); month++; }
           runway = month;
         } else {
           runway = Math.floor(v.cash_balance / burn);
@@ -197,7 +184,6 @@
         };
       }
     },
-    // 8. Subscription LTV
     'subscription-ltv': {
       name: 'Subscription LTV',
       fields: [
@@ -221,7 +207,6 @@
         };
       }
     },
-    // 9. Amazon FBA
     'amazon-fba-calculator': {
       name: 'Amazon FBA Calculator',
       fields: [
@@ -249,7 +234,6 @@
         };
       }
     },
-    // 10. Pricing Strategy
     'pricing-strategy': {
       name: 'Product Pricing Strategy',
       fields: [
@@ -276,7 +260,6 @@
         };
       }
     },
-    // 11. Refund Rate Impact
     'refund-rate-impact': {
       name: 'Refund Rate Impact',
       fields: [
@@ -304,7 +287,6 @@
         };
       }
     },
-    // 12. Bundle Pricing Optimizer
     'bundle-pricing-optimizer': {
       name: 'Bundle Pricing Optimizer',
       fields: [
@@ -334,7 +316,6 @@
         };
       }
     },
-    // 13. Influencer ROI
     'influencer-roi-calculator': {
       name: 'Influencer Marketing ROI',
       fields: [
@@ -363,7 +344,6 @@
         };
       }
     },
-    // 14. Chargeback Impact
     'chargeback-impact': {
       name: 'Chargeback Cost Calculator',
       fields: [
@@ -389,7 +369,6 @@
         };
       }
     },
-    // 15. Shipping Cost Optimizer
     'shipping-cost-optimizer': {
       name: 'Shipping Cost Optimizer',
       fields: [
@@ -399,7 +378,7 @@
         { key: 'height_in', label: 'Height (inches)', default: 4, min: 1 },
         { key: 'monthly_volume', label: 'Monthly Shipments', default: 200, min: 1 },
         { key: 'avg_order_value', label: 'Average Order Value', prefix: '$', default: 65, min: 0.01 },
-        { key: 'residential_surcharge', label: 'Residential Surcharge (UPS/FedEx)', prefix: '$', default: 5.15, min: 0 }
+        { key: 'residential_surcharge', label: 'Residential Surcharge', prefix: '$', default: 5.15, min: 0 }
       ],
       calculate: function (v) {
         var dimWeight = (v.length_in * v.width_in * v.height_in) / 139;
@@ -416,15 +395,14 @@
         };
       }
     },
-    // 16. Wholesale Margin
     'wholesale-margin-calculator': {
       name: 'Wholesale Margin',
       fields: [
         { key: 'unit_cost', label: 'Unit Cost (COGS + landed)', prefix: '$', default: 12.00, min: 0 },
         { key: 'shipping_per_unit', label: 'Shipping to Retailer Per Unit', prefix: '$', default: 2.00, min: 0 },
-        { key: 'wholesale_price', label: 'Wholesale Price (charged to retailers)', prefix: '$', default: 30.00, min: 0 },
+        { key: 'wholesale_price', label: 'Wholesale Price', prefix: '$', default: 30.00, min: 0 },
         { key: 'msrp', label: 'MSRP / Retail Price', prefix: '$', default: 60.00, min: 0 },
-        { key: 'moq', label: 'Minimum Order Quantity (MOQ)', default: 50, min: 1 }
+        { key: 'moq', label: 'Minimum Order Quantity', default: 50, min: 1 }
       ],
       calculate: function (v) {
         var totalCost = v.unit_cost + v.shipping_per_unit;
@@ -444,7 +422,6 @@
         };
       }
     },
-    // 17. Etsy Fee Calculator
     'etsy-fee-calculator': {
       name: 'Etsy Fee Calculator',
       fields: [
@@ -452,7 +429,7 @@
         { key: 'shipping_charged', label: 'Shipping Charged to Buyer', prefix: '$', default: 5.00, min: 0 },
         { key: 'cogs', label: 'Cost of Goods (materials + labour)', prefix: '$', default: 12.00, min: 0 },
         { key: 'etsy_ads_spend', label: 'Monthly Etsy Ads Budget', prefix: '$', default: 30.00, min: 0 },
-        { key: 'monthly_listings', label: 'Active Listings (monthly renewal fee)', default: 20, min: 1 }
+        { key: 'monthly_listings', label: 'Active Listings', default: 20, min: 1 }
       ],
       calculate: function (v) {
         var listingFees = v.monthly_listings * 0.20;
@@ -470,7 +447,6 @@
         };
       }
     },
-    // 18. Profit Per SKU
     'profit-per-sku': {
       name: 'Profit Per SKU',
       fields: [
@@ -500,7 +476,6 @@
         };
       }
     },
-    // 19. Ad Spend Budget Calculator
     'ad-spend-budget-calculator': {
       name: 'Ad Spend Budget',
       fields: [
@@ -527,7 +502,6 @@
         };
       }
     },
-    // 20. Email Marketing ROI
     'email-marketing-roi': {
       name: 'Email Marketing ROI',
       fields: [
@@ -590,11 +564,8 @@
   function injectStyles(accentColor, containerId) {
     var styleId = 'valcr-styles-' + containerId;
     if (document.getElementById(styleId)) return;
-
     var css = [
-      '.valcr-widget{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;',
-      'background:#0d0d12;color:#e8e8f0;border-radius:16px;overflow:hidden;',
-      'border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 40px rgba(0,0,0,0.4)}',
+      '.valcr-widget{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0d0d12;color:#e8e8f0;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 40px rgba(0,0,0,0.4)}',
       '.valcr-header{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.06)}',
       '.valcr-header-top{display:flex;align-items:center;justify-content:space-between}',
       '.valcr-calc-name{font-size:14px;font-weight:600;letter-spacing:-0.01em;color:#f0f0fa}',
@@ -637,7 +608,6 @@
       '.valcr-spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,0.1);border-top-color:' + accentColor + ';border-radius:50%;animation:valcr-spin 0.7s linear infinite;margin:0 auto}',
       '@keyframes valcr-spin{to{transform:rotate(360deg)}}'
     ].join('');
-
     var style = document.createElement('style');
     style.id = styleId;
     style.textContent = css;
@@ -645,10 +615,9 @@
   }
 
   // ─── Telemetry ───────────────────────────────────────────────────────────────
-  function Telemetry(embedKey, calcSlug, containerId) {
+  function Telemetry(embedKey, calcSlug) {
     this.embedKey = embedKey;
     this.calcSlug = calcSlug;
-    this.containerId = containerId;
     this.queue = [];
     this.timer = null;
     var self = this;
@@ -656,52 +625,20 @@
       if (document.visibilityState === 'hidden') self._flush();
     });
   }
-
   Telemetry.prototype.emit = function (eventType, data) {
     if (!this.embedKey) return;
-    this.queue.push(Object.assign({
-      event_type: eventType,
-      calculator_slug: this.calcSlug,
-      embed_key: this.embedKey,
-      referrer: document.referrer || undefined,
-      page_url: window.location.href
-    }, data || {}));
-    if (this.queue.length >= 5) {
-      this._flush();
-    } else {
-      clearTimeout(this.timer);
-      var self = this;
-      this.timer = setTimeout(function () { self._flush(); }, 2000);
-    }
+    this.queue.push(Object.assign({ event_type: eventType, calculator_slug: this.calcSlug, embed_key: this.embedKey, referrer: document.referrer || undefined, page_url: window.location.href }, data || {}));
+    if (this.queue.length >= 5) { this._flush(); } else { clearTimeout(this.timer); var self = this; this.timer = setTimeout(function () { self._flush(); }, 2000); }
   };
-
   Telemetry.prototype._flush = function () {
     if (!this.queue.length) return;
     var batch = this.queue.splice(0);
-    try {
-      fetch(API_BASE + '/telemetry/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ events: batch }),
-        keepalive: true,
-        credentials: 'include'
-      }).catch(function () {});
-    } catch (e) { /* silent */ }
+    try { fetch(API_BASE + '/telemetry/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ events: batch }), keepalive: true }).catch(function () {}); } catch (e) {}
   };
 
   // ─── Lead Capture ───────────────────────────────────────────────────────────
   function submitLead(embedKey, calcSlug, email, inputs) {
-    return fetch(API_BASE + '/embeds/lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        embed_key: embedKey,
-        calculator_slug: calcSlug,
-        email: email,
-        input_data: inputs
-      }),
-      credentials: 'include'
-    });
+    return fetch(API_BASE + '/embeds/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embed_key: embedKey, calculator_slug: calcSlug, email: email, input_data: inputs }) });
   }
 
   // ─── Validation ─────────────────────────────────────────────────────────────
@@ -709,94 +646,74 @@
     return fetch(API_BASE + '/embeds/validate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        embed_key: embedKey,
-        calculator_slug: calcSlug,
-        domain: domain
-      })
+      body: JSON.stringify({ embed_key: embedKey, calculator_slug: calcSlug, domain: domain })
     }).then(function (res) {
-      if (!res.ok) {
-        return res.json().then(function (err) {
-          throw new Error(err.detail || 'Invalid embed key');
-        });
-      }
+      if (!res.ok) { return res.json().then(function (err) { throw new Error(err.detail || 'Invalid embed key'); }); }
       return res.json();
     });
   }
 
-  // ─── Track calculation (for embed usage) ─────────────────────────────────────
+  // ─── Track calculation ────────────────────────────────────────────────────────
   function trackCalculation(embedKey, calcSlug, domain) {
-    fetch(API_BASE + '/embeds/track-calculation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        embed_key: embedKey,
-        calculator_slug: calcSlug,
-        domain: domain
-      }),
-      keepalive: true
-    }).catch(function () {});
+    fetch(API_BASE + '/embeds/track-calculation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embed_key: embedKey, calculator_slug: calcSlug, domain: domain }), keepalive: true }).catch(function () {});
   }
 
   // ─── Widget Class ───────────────────────────────────────────────────────────
   function ValcrWidget(container) {
     this.container = container;
-    this.calcSlug = container.getAttribute('data-valcr-calc') || '';
-    this.embedKey = container.getAttribute('data-valcr-key') || '';
-    this.width = container.getAttribute('data-valcr-width') || '100%';
-    this.id = 'valcr-' + Math.random().toString(36).slice(2, 8);
-    this.values = {};
+
+    // ✅ FIX 1: Accept BOTH attribute naming conventions
+    this.calcSlug  = container.getAttribute('data-valcr-calc')  || container.getAttribute('data-calc')      || '';
+    this.embedKey  = container.getAttribute('data-valcr-key')   || container.getAttribute('data-embed-key') || '';
+    this.showLead  = container.getAttribute('data-valcr-lead')  === 'true' || container.getAttribute('data-lead-capture') === 'true';
+    // data-brand="false" means hide branding; data-valcr-brand="false" means same
+    var brandAttr  = container.getAttribute('data-valcr-brand') || container.getAttribute('data-brand');
+    this.hideBrand = brandAttr === 'false';
+
+    this.width     = container.getAttribute('data-valcr-width') || '100%';
+    this.id        = 'valcr-' + Math.random().toString(36).slice(2, 8);
+    this.values    = {};
     this.validated = false;
-    this.validationConfig = null;
-    this.telemetry = null;
+    this.accentColor = '#C8FF57';
   }
 
   ValcrWidget.prototype.init = function () {
     var self = this;
-    if (!this.calcSlug) {
-      this._renderError('Missing data-valcr-calc attribute.');
-      return;
-    }
-    if (!this.embedKey) {
-      this._renderError('Missing data-valcr-key attribute. Get your key from the Valcr dashboard.');
-      return;
-    }
+    if (!this.calcSlug) { this._renderError('Missing calculator attribute. Add data-valcr-calc="shopify-profit-margin" to your script tag.'); return; }
+    if (!this.embedKey) { this._renderError('Missing embed key. Add data-valcr-key="emb_live_..." to your script tag.'); return; }
     var calc = CALCULATORS[this.calcSlug];
-    if (!calc) {
-      this._renderError('Calculator "' + this.calcSlug + '" not found.');
-      return;
-    }
+    if (!calc) { this._renderError('Calculator "' + this.calcSlug + '" not found. Check the calculator slug.'); return; }
     this.calc = calc;
     this._renderLoading();
     var domain = window.location.hostname;
     validateEmbedKey(this.embedKey, this.calcSlug, domain)
       .then(function (config) {
-        self.validationConfig = config;
         self.validated = true;
+        // Server config overrides local attributes for security
         self.accentColor = config.theme_color || '#C8FF57';
-        self.showBrand = config.show_branding !== false;
-        self.showLead = self.container.getAttribute('data-valcr-lead') === 'true' && config.lead_capture_enabled === true;
+        self.showBrand   = !self.hideBrand && config.show_branding !== false;
+        // Lead capture: both local attr AND server must allow it
+        self.showLead    = self.showLead && config.lead_capture_enabled === true;
         for (var i = 0; i < calc.fields.length; i++) {
           self.values[calc.fields[i].key] = calc.fields[i].default;
         }
-        self.telemetry = new Telemetry(self.embedKey, self.calcSlug, self.id);
+        self.telemetry = new Telemetry(self.embedKey, self.calcSlug);
         injectStyles(self.accentColor, self.id);
         self._render();
         self.telemetry.emit('calculator_opened');
       })
       .catch(function (err) {
-        self._renderError(err.message || 'Invalid or inactive embed key. Please check your key and domain settings.');
+        self._renderError(err.message || 'Could not load calculator. Please check your embed key and domain settings.');
       });
   };
 
   ValcrWidget.prototype._renderLoading = function () {
-    injectStyles(this.accentColor || '#C8FF57', this.id);
+    injectStyles(this.accentColor, this.id);
     this.container.innerHTML = '<div class="valcr-widget"><div class="valcr-loading"><div class="valcr-spinner"></div><div style="margin-top:12px;font-size:13px;color:rgba(200,200,220,0.5)">Loading calculator...</div></div></div>';
   };
 
   ValcrWidget.prototype._render = function () {
     var results = this.calc.calculate(this.values);
-    var self = this;
     var html = '<div class="valcr-widget" id="' + this.id + '" style="width:' + this.width + '">';
     html += '<div class="valcr-header"><div class="valcr-header-top">';
     html += '<span class="valcr-calc-name">' + this._esc(this.calc.name) + '</span>';
@@ -805,12 +722,9 @@
     for (var i = 0; i < this.calc.fields.length; i++) {
       var field = this.calc.fields[i];
       var val = this.values[field.key];
-      var hasPrefix = !!field.prefix;
-      var hasSuffix = !!field.suffix;
+      var hasPrefix = !!field.prefix, hasSuffix = !!field.suffix;
       var inputClasses = 'valcr-input' + (hasPrefix ? ' has-prefix' : '') + (hasSuffix ? ' has-suffix' : '');
-      html += '<div class="valcr-field">';
-      html += '<span class="valcr-label">' + this._esc(field.label) + '</span>';
-      html += '<div class="valcr-input-wrap">';
+      html += '<div class="valcr-field"><span class="valcr-label">' + this._esc(field.label) + '</span><div class="valcr-input-wrap">';
       if (hasPrefix) html += '<span class="valcr-prefix">' + this._esc(field.prefix) + '</span>';
       html += '<input class="' + inputClasses + '" type="number" data-key="' + field.key + '" value="' + val + '"';
       if (field.min !== undefined) html += ' min="' + field.min + '"';
@@ -824,33 +738,22 @@
     for (var j = 0; j < resultKeys.length; j++) {
       var key = resultKeys[j];
       var result = results[key];
-      var isHighlight = result.highlight;
       var numVal = parseFloat(result.value);
       var isNegative = !isNaN(numVal) && numVal < 0;
-      var cardClass = 'valcr-result-card' + (isHighlight ? ' highlight' : '');
-      var valClass = 'valcr-result-value' + (isNegative ? ' negative' : '');
-      var formatted = formatValue(result.value, result);
-      html += '<div class="' + cardClass + '">';
+      html += '<div class="valcr-result-card' + (result.highlight ? ' highlight' : '') + '">';
       html += '<div class="valcr-result-label">' + this._esc(result.label) + '</div>';
-      html += '<div class="' + valClass + '" id="' + this.id + '-' + key + '">' + formatted + '</div>';
+      html += '<div class="valcr-result-value' + (isNegative ? ' negative' : '') + '" id="' + this.id + '-' + key + '">' + formatValue(result.value, result) + '</div>';
       html += '</div>';
     }
     html += '</div></div>';
     if (this.showLead) {
-      html += '<div class="valcr-lead-form">';
-      html += '<div class="valcr-lead-label">Get full report via email</div>';
-      html += '<div class="valcr-lead-row">';
+      html += '<div class="valcr-lead-form"><div class="valcr-lead-label">Get full report via email</div><div class="valcr-lead-row">';
       html += '<input class="valcr-lead-input" id="' + this.id + '-lead-email" type="email" placeholder="your@email.com">';
-      html += '<button class="valcr-lead-btn" id="' + this.id + '-lead-btn">Send</button>';
-      html += '</div>';
-      html += '<div class="valcr-lead-success" id="' + this.id + '-lead-success" style="display:none">✓ Check your inbox!</div>';
-      html += '</div>';
+      html += '<button class="valcr-lead-btn" id="' + this.id + '-lead-btn">Send</button></div>';
+      html += '<div class="valcr-lead-success" id="' + this.id + '-lead-success" style="display:none">✓ Check your inbox!</div></div>';
     }
     if (this.showBrand) {
-      html += '<div class="valcr-footer">';
-      html += '<a class="valcr-powered" href="https://valcr.site?ref=widget" target="_blank" rel="noopener">';
-      html += 'Powered by <strong>Valcr</strong>';
-      html += '</a></div>';
+      html += '<div class="valcr-footer"><a class="valcr-powered" href="https://valcr.site?ref=widget" target="_blank" rel="noopener">Powered by <strong>Valcr</strong></a></div>';
     }
     html += '</div>';
     this.container.innerHTML = html;
@@ -868,24 +771,11 @@
         if (!fieldChangeCount[key]) fieldChangeCount[key] = 0;
         input.addEventListener('focus', function () { focusStart = Date.now(); });
         input.addEventListener('blur', function () {
-          if (focusStart && self.telemetry) {
-            var duration = Date.now() - focusStart;
-            focusStart = null;
-            self.telemetry.emit('field_changed', {
-              field_name: key,
-              field_value: parseFloat(input.value) || 0,
-              time_on_field_ms: duration,
-              change_count_in_session: ++fieldChangeCount[key]
-            });
-          }
+          if (focusStart && self.telemetry) { var duration = Date.now() - focusStart; focusStart = null; self.telemetry.emit('field_changed', { field_name: key, field_value: parseFloat(input.value) || 0, time_on_field_ms: duration, change_count_in_session: ++fieldChangeCount[key] }); }
         });
         input.addEventListener('input', function () {
-          var raw = input.value;
-          var parsed = raw === '' ? 0 : parseFloat(raw);
-          if (!isNaN(parsed)) {
-            self.values[key] = parsed;
-            self._updateResults();
-          }
+          var parsed = input.value === '' ? 0 : parseFloat(input.value);
+          if (!isNaN(parsed)) { self.values[key] = parsed; self._updateResults(); }
         });
       })(inputs[i]);
     }
@@ -896,20 +786,10 @@
           var emailInput = document.getElementById(self.id + '-lead-email');
           var email = emailInput ? emailInput.value.trim() : '';
           var successEl = document.getElementById(self.id + '-lead-success');
-          if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            if (emailInput) emailInput.style.borderColor = '#ff6b6b';
-            setTimeout(function () { if (emailInput) emailInput.style.borderColor = ''; }, 1500);
-            return;
-          }
-          leadBtn.disabled = true;
-          leadBtn.textContent = '...';
+          if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { if (emailInput) { emailInput.style.borderColor = '#ff6b6b'; setTimeout(function () { emailInput.style.borderColor = ''; }, 1500); } return; }
+          leadBtn.disabled = true; leadBtn.textContent = '...';
           submitLead(self.embedKey, self.calcSlug, email, self.values)
-            .then(function () {
-              if (successEl) successEl.style.display = 'block';
-              if (emailInput) emailInput.style.display = 'none';
-              leadBtn.style.display = 'none';
-              if (self.telemetry) self.telemetry.emit('registration_completed', { field_name: 'lead_email' });
-            })
+            .then(function () { if (successEl) successEl.style.display = 'block'; if (emailInput) emailInput.style.display = 'none'; leadBtn.style.display = 'none'; if (self.telemetry) self.telemetry.emit('registration_completed', { field_name: 'lead_email' }); })
             .catch(function () { leadBtn.disabled = false; leadBtn.textContent = 'Send'; });
         });
       }
@@ -925,30 +805,17 @@
       var el = document.getElementById(this.id + '-' + key);
       if (!el) continue;
       var numVal = parseFloat(result.value);
-      var isNeg = !isNaN(numVal) && numVal < 0;
       el.textContent = formatValue(result.value, result);
-      if (isNeg) el.classList.add('negative');
-      else el.classList.remove('negative');
+      if (numVal < 0) el.classList.add('negative'); else el.classList.remove('negative');
     }
     if (this.telemetry) {
-      this.telemetry.emit('calculation_run', {
-        input_snapshot: Object.assign({}, this.values),
-        output_snapshot: (function (r) {
-          var out = {};
-          var k = Object.keys(r);
-          for (var i = 0; i < k.length; i++) out[k[i]] = r[k[i]].value;
-          return out;
-        })(results)
-      });
+      this.telemetry.emit('calculation_run', { input_snapshot: Object.assign({}, this.values), output_snapshot: (function (r) { var out = {}; Object.keys(r).forEach(function (k) { out[k] = r[k].value; }); return out; })(results) });
     }
-    // Track calculation for embed usage stats
-    if (this.embedKey && this.validated) {
-      trackCalculation(this.embedKey, this.calcSlug, window.location.hostname);
-    }
+    if (this.embedKey && this.validated) { trackCalculation(this.embedKey, this.calcSlug, window.location.hostname); }
   };
 
   ValcrWidget.prototype._renderError = function (msg) {
-    injectStyles(this.accentColor || '#C8FF57', this.id);
+    injectStyles(this.accentColor, this.id);
     this.container.innerHTML = '<div class="valcr-widget"><div class="valcr-error">' + this._esc(msg) + '</div></div>';
   };
 
@@ -957,8 +824,10 @@
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   };
 
+  // ─── Init ────────────────────────────────────────────────────────────────────
   function initAll() {
-    var containers = document.querySelectorAll('[data-valcr-calc]');
+    // ✅ FIX 2: Find containers using BOTH attribute naming conventions
+    var containers = document.querySelectorAll('[data-valcr-calc], [data-calc]');
     for (var i = 0; i < containers.length; i++) {
       var container = containers[i];
       if (!container.__valcr) {
@@ -974,11 +843,6 @@
     initAll();
   }
 
-  global.Valcr = {
-    version: VERSION,
-    init: initAll,
-    Widget: ValcrWidget,
-    calculators: Object.keys(CALCULATORS)
-  };
+  global.Valcr = { version: VERSION, init: initAll, Widget: ValcrWidget, calculators: Object.keys(CALCULATORS) };
 
 }(typeof window !== 'undefined' ? window : this));
