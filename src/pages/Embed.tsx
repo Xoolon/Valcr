@@ -14,11 +14,11 @@ export function EmbedPage() {
 
 
 
-  const embedCode = `<script src="https://cdn.valcr.site/widget.js"
-  data-calc="${selectedSlug}"
-  data-theme="${theme}"
-  data-lead-capture="false"
-  data-embed-key="YOUR_EMBED_KEY_HERE">
+const embedCode = `<script src="https://cdn.valcr.site/widget.js"
+  data-valcr-calc="${selectedSlug}"
+  data-valcr-key="YOUR_EMBED_KEY_HERE"
+  data-valcr-lead="false"
+  data-valcr-brand="false">
 </script>`
 
   const copyCode = () => {
